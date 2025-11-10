@@ -1,8 +1,8 @@
 namespace Core;
 
-public class Context(Source source, Context? parentContext = null, Position? parentStartPosition = null) {
+public class Context(Scope scope, Context? parentContext = null, Position? parentStartPosition = null) {
 
-	public Source Source { get; } = source;
+	public Scope Scope { get; } = scope;
 	public Context? ParentContext { get; } = parentContext;
 	public Position? ParentStartPosition { get; } = parentStartPosition;
 

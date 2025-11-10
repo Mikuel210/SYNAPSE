@@ -37,7 +37,7 @@ public struct Token(Token.EType type, object? value, Position start, Position en
 
 public class Lexer {
 
-	public Source Source { get; }
+	public Scope Scope { get; }
 	
 	/// <summary>
 	/// Represents the tokens yet to be processed by the parser
@@ -49,15 +49,15 @@ public class Lexer {
 	/// Represents the position after the last token to be parsed
 	/// </summary>
 	private Position _currentPosition;
-	private char CurrentCharacter => Source.Text.ElementAtOrDefault(_currentPosition.Index);
+	private char CurrentCharacter => Scope.Text.ElementAtOrDefault(_currentPosition.Index);
 
 	
-	public Lexer(Source source) {
-		Source = source;
-		_currentPosition = new(Source);
+	public Lexer(Scope scope) {
+		Scope = scope;
+		_currentPosition = new(Scope);
 		
 		Tokenize();
-		Source.OnTextChanged += Retokenize;
+		Scope.OnTextChanged += Retokenize;
 	}
 
 	
@@ -121,7 +121,7 @@ public class Lexer {
 	/// <summary>
 	/// Fills the token queue with all tokens from the source 
 	/// </summary>
-	public void Tokenize() => TokenizeFrom(new(Source));
+	public void Tokenize() => TokenizeFrom(new(Scope));
 
 	/// <summary>
 	/// Recalculates tokens on the token queue

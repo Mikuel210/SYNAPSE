@@ -21,8 +21,8 @@ public class Parser(Lexer lexer) {
 		}
 
 		return new NullNode(
-			new(Lexer.Source),
-			new(Lexer.Source, Lexer.Source.Text.Length)
+			new(Lexer.Scope),
+			new(Lexer.Scope, Lexer.Scope.Text.Length)
 		);
 	}
 
