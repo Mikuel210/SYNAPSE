@@ -10,7 +10,7 @@
    
 - **ArithmeticExpression**: Term ((ADD|SUBTRACT) Term)*
 
-- **Variable**: VARIABLE (IDENTIFIER|KEYWORD|BaseAtom)
+- **Variable**: VARIABLE (IDENTIFIER|BaseAtom) // Add keyword and scopes
     IDENTIFIER
 
 - **Term**: Factor ((MULTIPLY|DIVIDE) Factor)*

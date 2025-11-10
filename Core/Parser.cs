@@ -55,8 +55,11 @@ public class Parser(Lexer lexer) {
 
 	private Node Variable()
 	{
-		// TODO
-		throw new NotImplementedException();
+		if (CurrentToken.Type == Token.EType.Variable) {
+			Advance();
+			
+			
+		}
 	}
 	
 	private Node Term() {

@@ -69,33 +69,30 @@ public class Lexer {
 	/// </summary>
 	/// <returns></returns>
 	private Token? TokenizeNext() {
-		char character = CurrentCharacter;
-
-		while ("\t ".Contains(character)) {
+		while ("\t ".Contains(CurrentCharacter))
 			Advance();
-			character = CurrentCharacter;
-		}
 
-		if (character == '\0') return null;
+		char character = CurrentCharacter;
+		if (CurrentCharacter == '\0') return null;
 
 		// Make token
 		if (";\n".Contains(character)) return MakeToken(Token.EType.NewLine);
-
-		if (character == '(') return MakeToken(Token.EType.OpenParenthesis, character);
-		if (character == ')') return MakeToken(Token.EType.CloseParenthesis, character);
-		
 		if (char.IsNumber(character)) return MakeNumber();
-		if (character == '+') return MakeToken(Token.EType.Add, character);
-		if (character == '-') return MakeToken(Token.EType.Subtract, character);
-		if (character == '*') return MakeToken(Token.EType.Multiply, character);
-		if (character == '/') return MakeToken(Token.EType.Divide, character);
-		if (character == '^') return MakeToken(Token.EType.Power, character);
-		if (character == '%') return MakeToken(Token.EType.Modulo, character);
-
-		if (character == '$') return MakeToken(Token.EType.Variable, character);
 		if (char.IsLetter(character) || character == '_') return MakeIdentifier();
 
-		return MakeToken(Token.EType.Invalid, CurrentCharacter);
+		return character switch {
+			'(' => MakeToken(Token.EType.OpenParenthesis, character),
+			')' => MakeToken(Token.EType.CloseParenthesis, character),
+			'+' => MakeToken(Token.EType.Add, character),
+			'-' => MakeToken(Token.EType.Subtract, character),
+			'*' => MakeToken(Token.EType.Multiply, character),
+			'/' => MakeToken(Token.EType.Divide, character),
+			'^' => MakeToken(Token.EType.Power, character),
+			'%' => MakeToken(Token.EType.Modulo, character),
+			'$' => MakeToken(Token.EType.Variable, character),
+			_   => MakeToken(Token.EType.Invalid, CurrentCharacter)
+		};
+
 	}
 	private bool TryTokenizeNext(out Token token) {
 		var nullableToken = TokenizeNext();
@@ -123,7 +120,7 @@ public class Lexer {
 	public void GoTo(Position position) => TokenizeFrom(position);
 	
 	/// <summary>
-	/// Fills the token queue with all tokens from the source 
+	/// Fills the token queue with all tokens from the scope 
 	/// </summary>
 	public void Tokenize() => TokenizeFrom(new(Scope));
 
@@ -186,7 +183,7 @@ public class Lexer {
 		var identifierString = "";
 		var startPosition = _currentPosition;
 
-		while (char.IsLetter(CurrentCharacter) || CurrentCharacter == '_') {
+		while (char.IsLetterOrDigit(CurrentCharacter) || CurrentCharacter == '_') {
 			identifierString += CurrentCharacter;
 			Advance();
 		}
