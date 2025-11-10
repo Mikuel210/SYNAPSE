@@ -55,11 +55,22 @@ public class Parser(Lexer lexer) {
 
 	private Node Variable()
 	{
-		if (CurrentToken.Type == Token.EType.Variable) {
+		var token = CurrentToken;
+		
+		if (token.Type == Token.EType.Variable) {
 			Advance();
-			
-			
+
+			var name = CurrentToken.Type == Token.EType.Identifier 
+				? new LiteralNode(CurrentToken) 
+				: BaseAtom();
+
+			return new VariableNode(name);
 		}
+
+		if (token.Type == Token.EType.Identifier) 
+			return new VariableNode(new LiteralNode(token));
+
+		return new ErrorNode($"Expected variable, got {token.Type}", token.StartPosition, token.EndPosition);
 	}
 	
 	private Node Term() {
@@ -94,7 +105,7 @@ public class Parser(Lexer lexer) {
 		if (token.Type == Token.EType.OpenParenthesis) {
 			if (CurrentToken.Type == Token.EType.CloseParenthesis) {
 				Advance();
-				return new ErrorNode("Expected expression", CurrentToken.StartPosition, CurrentToken.EndPosition);	
+				return new ErrorNode("Expected expression", CurrentToken.StartPosition, CurrentToken.EndPosition); // TODO: ErrorMessage.Expected("expression", CurrentToken) -> Expected expression, got invalid
 			}
 			
 			var expression = Expression();
@@ -105,7 +116,16 @@ public class Parser(Lexer lexer) {
 			Advance();
 			return expression;
 		}
+
+		// Check for a variable
+		var startPosition = CurrentToken.StartPosition;
+		var variable = Variable();
 		
+		if (variable is VariableNode variableNode)
+			return new VariableAccessNode(variableNode);
+		
+		// If failed, go back
+		Lexer.GoTo(startPosition);
 		return new ErrorNode($"Expected number, got {token.Type}", token.StartPosition, token.EndPosition);
 	}
 
