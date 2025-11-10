@@ -39,9 +39,7 @@ public class Scope
 			OnTextChanged?.Invoke();
 		}
 	}
-
 	public Scope? ParentScope { get; }
-
 	public VariableTable VariableTable { get; }
 	
 	#endregion

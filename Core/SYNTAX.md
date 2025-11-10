@@ -9,7 +9,10 @@
 - **Expression**: ArithmeticExpression
    
 - **ArithmeticExpression**: Term ((ADD|SUBTRACT) Term)*
-   
+
+- **Variable**: VARIABLE (IDENTIFIER|KEYWORD|BaseAtom)
+    IDENTIFIER
+
 - **Term**: Factor ((MULTIPLY|DIVIDE) Factor)*
   
 - **Factor**: (ADD|SUBTRACT)? Factor
@@ -17,5 +20,5 @@
  
 - **Atom**: BaseAtom
  
-- **BaseAtom**: Number
+- **BaseAtom**: Number|Variable
     OPEN_PARENTHESIS Expression CLOSE_PARENTHESIS

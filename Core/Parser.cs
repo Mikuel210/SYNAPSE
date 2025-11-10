@@ -53,6 +53,12 @@ public class Parser(Lexer lexer) {
 		);
 	}
 
+	private Node Variable()
+	{
+		// TODO
+		throw new NotImplementedException();
+	}
+	
 	private Node Term() {
 		return ArithmeticOperation(
 			[Token.EType.Multiply, Token.EType.Divide],

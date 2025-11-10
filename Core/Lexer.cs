@@ -4,9 +4,7 @@ public struct Token(Token.EType type, object? value, Position start, Position en
 
 	public enum EType {
 		
-		None, // Default value
-        // (first or default will return this in case no tokens are left in the queue)
-		
+		None, // Default value when no tokens are left
 		Invalid,
 		NewLine,
 		
@@ -20,6 +18,9 @@ public struct Token(Token.EType type, object? value, Position start, Position en
 		Divide,
 		Power,
 		Modulo,
+		
+		Variable,
+		Identifier
 
 	}
 
@@ -90,6 +91,9 @@ public class Lexer {
 		if (character == '/') return MakeToken(Token.EType.Divide, character);
 		if (character == '^') return MakeToken(Token.EType.Power, character);
 		if (character == '%') return MakeToken(Token.EType.Modulo, character);
+
+		if (character == '$') return MakeToken(Token.EType.Variable, character);
+		if (char.IsLetter(character) || character == '_') return MakeIdentifier();
 
 		return MakeToken(Token.EType.Invalid, CurrentCharacter);
 	}
@@ -175,6 +179,19 @@ public class Lexer {
 
 		float number = float.Parse(numberString);
 		return new(Token.EType.Number, number, startPosition, _currentPosition);
+	}
+
+	private Token MakeIdentifier()
+	{
+		var identifierString = "";
+		var startPosition = _currentPosition;
+
+		while (char.IsLetter(CurrentCharacter) || CurrentCharacter == '_') {
+			identifierString += CurrentCharacter;
+			Advance();
+		}
+
+		return new(Token.EType.Identifier, identifierString, startPosition, _currentPosition);
 	}
 
 	#endregion
