@@ -1,7 +1,7 @@
 namespace Core;
 
 public class Position {
-
+ 
 	public int Index { get; private set; }
 	public int Line => GetLine();
 	public int Column => GetColumn();
