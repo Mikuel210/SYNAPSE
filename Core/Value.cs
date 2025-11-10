@@ -70,15 +70,63 @@ public class Number(float value, Position start, Position end, Context context) 
 				return clone;
 		}
 		
-		// TODO
 		throw new NotImplementedException("Operation not implemented");
 	}
-	
-	public override IValue SubtractedBy(IValue value) => throw new NotImplementedException("Operation not implemented");
-	public override IValue MultipliedBy(IValue value) => throw new NotImplementedException("Operation not implemented");
-	public override IValue DividedBy(IValue value) => throw new NotImplementedException("Operation not implemented");
-	public override IValue PoweredBy(IValue value) => throw new NotImplementedException("Operation not implemented");
-	public override IValue ReducedTo(IValue value) => throw new NotImplementedException("Operation not implemented");
+	public override IValue SubtractedBy(IValue value) {
+		switch (value) {
+			case Number number:
+				var clone = Clone();
+				clone.Value -= number.Value;
+
+				return clone;
+		}
+		
+		throw new NotImplementedException("Operation not implemented");
+	}
+	public override IValue MultipliedBy(IValue value) {
+		switch (value) {
+			case Number number:
+				var clone = Clone();
+				clone.Value *= number.Value;
+
+				return clone;
+		}
+		
+		throw new NotImplementedException("Operation not implemented");
+	}
+	public override IValue DividedBy(IValue value) {
+		switch (value) {
+			case Number number:
+				var clone = Clone();
+				clone.Value /= number.Value;
+
+				return clone;
+		}
+		
+		throw new NotImplementedException("Operation not implemented");
+	}
+	public override IValue PoweredBy(IValue value) {
+		switch (value) {
+			case Number number:
+				var clone = Clone();
+				clone.Value = MathF.Pow(clone.Value, number.Value);
+
+				return clone;
+		}
+		
+		throw new NotImplementedException("Operation not implemented");
+	}
+	public override IValue ReducedTo(IValue value) {
+		switch (value) {
+			case Number number:
+				var clone = Clone();
+				clone.Value %= number.Value;
+
+				return clone;
+		}
+		
+		throw new NotImplementedException("Operation not implemented");
+	}
 	
 }
 

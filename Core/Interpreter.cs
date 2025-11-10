@@ -69,6 +69,21 @@ public static class Interpreter {
 		};
 	}
 
+	public record VariableData(IValue variableName)
+	{
+
+		public static VariableData FromVariableNode(VariableNode node, Context context)
+			=> new(Visit(node.VariableName, context));
+
+	}
+
+	private static IValue VisitVariableAccessNode(VariableAccessNode node, Context context)
+	{
+		var variable = VariableData.FromVariableNode(node.VariableNode, context);
+		return context.Scope.VariableTable.Get(variable.variableName, node.StartPosition, node.EndPosition, context);
+	}
+
 	#endregion
 
 }
+

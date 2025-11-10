@@ -67,7 +67,7 @@ public class VariableNode(Node variableName) : Node(variableName.StartPosition, 
 public class VariableAccessNode(VariableNode variableNode) : Node(variableNode.StartPosition, variableNode.EndPosition)
 {
 
-	public Node VariableNode { get; } = variableNode;
+	public VariableNode VariableNode { get; } = variableNode;
 	public override string Represent() => VariableNode.Represent();
 
 }
@@ -76,7 +76,7 @@ public class VariableAssignmentNode(VariableNode variableNode, Node valueNode)
 	: Node(variableNode.StartPosition, valueNode.EndPosition)
 {
 
-	public Node VariableNode { get; } = variableNode;
+	public VariableNode VariableNode { get; } = variableNode;
 	public Node ValueNode { get; } = valueNode;
 	
 	public override string Represent() => $"{VariableNode.Represent()} = {ValueNode.Represent()}";
