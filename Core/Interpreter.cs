@@ -9,7 +9,6 @@ public static class Interpreter {
 		
 		while (parser.Lexer.TokenQueue.Count > 0) {
 			var node = parser.ParseStatement();
-			Console.WriteLine(node);
 			output.Add(Visit(node, context));
 		}
 

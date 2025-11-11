@@ -14,7 +14,6 @@ public class Parser(Lexer lexer) {
 					Advance();	
 			}
 			else if (Lexer.TokenQueue.Count > 0) {
-				Console.WriteLine($"huh: {string.Join(", ", Lexer.TokenQueue)}");
 				node = new ErrorNode("Newline expected", CurrentToken.StartPosition, CurrentToken.EndPosition);
 			}
 			
@@ -60,12 +59,14 @@ public class Parser(Lexer lexer) {
 		
 		if (token.Type == Token.EType.Variable) {
 			Advance();
+			token = CurrentToken;
 
-			var name = CurrentToken.Type == Token.EType.Identifier 
-				? new LiteralNode(CurrentToken) 
-				: BaseAtom();
-
-			return new VariableNode(name);
+			if (CurrentToken.Type == Token.EType.Identifier) {
+				Advance();
+				return new VariableNode(new LiteralNode(token));
+			}
+			
+			return new VariableNode(BaseAtom());
 		}
 
 		if (token.Type == Token.EType.Identifier) 

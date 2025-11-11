@@ -74,8 +74,6 @@ public class Lexer {
 
 		char character = CurrentCharacter;
 		if (CurrentCharacter == '\0') return null;
-		
-		Console.WriteLine($"::: {character}");
 
 		// Make token
 		if (";\n".Contains(character)) return MakeToken(Token.EType.NewLine);
@@ -189,9 +187,6 @@ public class Lexer {
 			identifierString += CurrentCharacter;
 			Advance();
 		}
-		
-		Console.WriteLine($"IDENTIFIER: {identifierString}");
-		Console.WriteLine($"here:::: {TokenQueue.Count} {CurrentCharacter}");
 
 		return new(Token.EType.Identifier, identifierString, startPosition, _currentPosition);
 	}
