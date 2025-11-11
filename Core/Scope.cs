@@ -12,7 +12,7 @@ public class VariableTable(Scope scope)
 		if (value != null) return value;
 		
 		if (isExplicit || Scope.ParentScope == null) 
-			return new Error($"Variable {key} is not defined", start, end, context);
+			return new Error($"Variable {key.Value} is not defined", start, end, context);
 		
 		return Scope.ParentScope.VariableTable.Get(key, start, end, context, isExplicit);
 	}

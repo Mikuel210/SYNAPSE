@@ -55,24 +55,22 @@ public class Parser(Lexer lexer) {
 
 	private Node Variable()
 	{
-		var token = CurrentToken;
+		Token token = CurrentToken;
 		
 		if (token.Type == Token.EType.Variable) {
 			Advance();
 			token = CurrentToken;
 
-			if (CurrentToken.Type == Token.EType.Identifier) {
-				Advance();
-				return new VariableNode(new LiteralNode(token));
-			}
-			
+			if (CurrentToken.Type == Token.EType.Identifier) goto Identifier;
 			return new VariableNode(BaseAtom());
 		}
 
-		if (token.Type == Token.EType.Identifier) 
-			return new VariableNode(new LiteralNode(token));
-
+		if (token.Type == Token.EType.Identifier) goto Identifier;
 		return new ErrorNode($"Expected variable, got {token.Type}", token.StartPosition, token.EndPosition);
+		
+		Identifier:
+			Advance();
+			return new VariableNode(new LiteralNode(token));
 	}
 	
 	private Node Term() {
