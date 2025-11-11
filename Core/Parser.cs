@@ -14,6 +14,7 @@ public class Parser(Lexer lexer) {
 					Advance();	
 			}
 			else if (Lexer.TokenQueue.Count > 0) {
+				Console.WriteLine($"huh: {string.Join(", ", Lexer.TokenQueue)}");
 				node = new ErrorNode("Newline expected", CurrentToken.StartPosition, CurrentToken.EndPosition);
 			}
 			
@@ -75,7 +76,7 @@ public class Parser(Lexer lexer) {
 	
 	private Node Term() {
 		return ArithmeticOperation(
-			[Token.EType.Multiply, Token.EType.Divide],
+			[Token.EType.Multiply, Token.EType.Divide, Token.EType.Modulo],
 			Factor
 		);	
 	}
@@ -85,18 +86,41 @@ public class Parser(Lexer lexer) {
 		
 		if (token.Type is Token.EType.Add or Token.EType.Subtract) {
 			Advance();
-			var factor = Factor();
+			Node factor = Factor();
 			
 			return new UnaryOperationNode(token, factor);
 		}
 
-		return Atom();
+		return Power();
+	}
+
+	private Node Power()
+	{
+		var atom = Atom();
+		Token token = CurrentToken;
+
+		if (token.Type == Token.EType.Power) {
+			Advance();
+			return new BinaryOperationNode(token, atom, Factor());
+		}
+
+		return atom;
 	}
 
 	private Node Atom() => BaseAtom();
 
 	private Node BaseAtom() {
 		Token token = CurrentToken;
+		
+		// Check for a variable
+		var startPosition = token.StartPosition.Clone();
+		var variable = Variable();
+		
+		if (variable is VariableNode variableNode)
+			return new VariableAccessNode(variableNode);
+		
+		// If failed, go back
+		Lexer.GoTo(startPosition);
 		Advance();
 		
 		if (token.Type == Token.EType.Number)
@@ -116,16 +140,7 @@ public class Parser(Lexer lexer) {
 			Advance();
 			return expression;
 		}
-
-		// Check for a variable
-		var startPosition = CurrentToken.StartPosition;
-		var variable = Variable();
 		
-		if (variable is VariableNode variableNode)
-			return new VariableAccessNode(variableNode);
-		
-		// If failed, go back
-		Lexer.GoTo(startPosition);
 		return new ErrorNode($"Expected number, got {token.Type}", token.StartPosition, token.EndPosition);
 	}
 

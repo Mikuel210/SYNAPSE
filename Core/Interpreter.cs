@@ -9,6 +9,7 @@ public static class Interpreter {
 		
 		while (parser.Lexer.TokenQueue.Count > 0) {
 			var node = parser.ParseStatement();
+			Console.WriteLine(node);
 			output.Add(Visit(node, context));
 		}
 
@@ -30,9 +31,10 @@ public static class Interpreter {
 
 	private static IValue VisitLiteralNode(LiteralNode node, Context context) {
 		Token token = node.Token;
-
+		
 		switch (token.Type) {
 			case Token.EType.Number: return Number.FromToken(token, context);
+			case Token.EType.Identifier: return Text.FromToken(token, context);
 			default: throw new InvalidOperationException($"Attempted to make a value from {token.Type} literal"); 
 		}
 	}

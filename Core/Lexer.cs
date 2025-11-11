@@ -74,6 +74,8 @@ public class Lexer {
 
 		char character = CurrentCharacter;
 		if (CurrentCharacter == '\0') return null;
+		
+		Console.WriteLine($"::: {character}");
 
 		// Make token
 		if (";\n".Contains(character)) return MakeToken(Token.EType.NewLine);
@@ -144,7 +146,7 @@ public class Lexer {
 	/// <param name="steps"></param>
 	/// <returns></returns>
 	private Token MakeToken(Token.EType type, object? value = null, int steps = 1) {
-		var start = _currentPosition;
+		var start = _currentPosition.Clone();
 		Advance(steps);
 		
 		var end = _currentPosition;
@@ -160,7 +162,7 @@ public class Lexer {
 	private Token MakeNumber() {
 		var numberString = "";
 		var hasDot = false;
-		var startPosition = _currentPosition;
+		var startPosition = _currentPosition.Clone();
 
 		while (CurrentCharacter != '\0' && char.IsNumber(CurrentCharacter)) {
 			char character = CurrentCharacter;
@@ -181,12 +183,15 @@ public class Lexer {
 	private Token MakeIdentifier()
 	{
 		var identifierString = "";
-		var startPosition = _currentPosition;
+		var startPosition = _currentPosition.Clone();
 
 		while (char.IsLetterOrDigit(CurrentCharacter) || CurrentCharacter == '_') {
 			identifierString += CurrentCharacter;
 			Advance();
 		}
+		
+		Console.WriteLine($"IDENTIFIER: {identifierString}");
+		Console.WriteLine($"here:::: {TokenQueue.Count} {CurrentCharacter}");
 
 		return new(Token.EType.Identifier, identifierString, startPosition, _currentPosition);
 	}
