@@ -8,19 +8,21 @@ public class VariableTable(Scope scope)
 	
 	public IValue Get(IValue key, Position start, Position end, Context context, bool isExplicit = false)
 	{
-		_variables.ToList().ForEach(e => Console.WriteLine($"{e.Key.Value} ::::: {key.Value}"));
-		var value = _variables.FirstOrDefault(e => e.Key.Value == key.Value).Value;
+		var value = _variables.FirstOrDefault(e => e.Key.Value?.Equals(key.Value) ?? false).Value;
 		if (value != null) return value;
 		
-		if (isExplicit || Scope.ParentScope == null) 
+		if (isExplicit || Scope.ParentScope == null)
 			return new Error($"Variable {key.Value} is not defined", start, end, context);
 		
 		return Scope.ParentScope.VariableTable.Get(key, start, end, context, isExplicit);
 	}
-
 	public void Set(IValue key, IValue value)
 	{
-		_variables[key] = value; // TODO:!!!!!	
+		var foundKey = _variables
+			.FirstOrDefault(e => e.Key.Value?.Equals(key.Value) ?? false).Key;
+		
+		if (foundKey is not null) key = foundKey;
+		_variables[key] = value;
 	}
 	public void Remove(IValue key)
 	{
