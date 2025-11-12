@@ -1,18 +1,28 @@
 () = Priority
 
 * = 0 or more
-+ = 1 or more
++ = 1 or more 
 ? = 0 or 1
 
-## Syntax
+EE = DOUBLE EQUALS
+LT = LESS THAN
+GT = GREATER THAN
+LTE = LESS THAN OR EQUALS
+GTE = GREATER THAN OR EQUALS
+
+## SYNAPSE Syntax
  
-- **Expression**: ArithmeticExpression|VariableAssignmentExpression
+- **Expression**: VariableAssignmentExpression
+    ComparisonExpression ((KEYWORD:and|or) ComparisonExpression)*
+
+- **ComparisonExpression**: not ComparisonExpression
+    ArithmeticExpression ((EE|LT|GT|LTE|GTE) ArithmeticExpression)*
    
 - **ArithmeticExpression**: Term ((ADD|SUBTRACT) Term)*
 
 - **VariableAssignmentExpression**: Variable EQUALS Expression
 
-- **Variable**: VARIABLE (IDENTIFIER|BaseAtom) // Add keyword and scopes
+- **Variable**: VARIABLE (IDENTIFIER|BaseAtom)
     IDENTIFIER
 
 - **Term**: Factor ((MULTIPLY|DIVIDE) Factor)*
@@ -28,20 +38,6 @@
 
 
 ## RUNTIME Syntax
-
-() = Priority
-
-* = 0 or more
-+ = 1 or more
-  ? = 0 or 1
-
-EE = DOUBLE EQUALS
-LT = LESS THAN
-GT = GREATER THAN
-LTE = LESS THAN OR EQUALS
-GTE = GREATER THAN OR EQUALS
-
-## Syntax
 
 -   **Statements**: NEW_LINE* Expression? (NEW_LINE+ Expression)* NEW_LINE*
 

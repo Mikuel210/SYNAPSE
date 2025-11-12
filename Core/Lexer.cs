@@ -21,7 +21,13 @@ public struct Token(Token.EType type, object? value, Position start, Position en
 		
 		Variable,
 		Identifier,
-		Equals
+		Equals,
+		
+		DoubleEquals,
+		LessThan,
+		GreaterThan,
+		LessThanEquals,
+		GreaterThanEquals
 
 	}
 
@@ -81,6 +87,10 @@ public class Lexer {
 		if (char.IsNumber(character)) return MakeNumber();
 		if (char.IsLetter(character) || character == '_') return MakeIdentifier();
 
+		if (character == '=') return MakeEquals();
+		if (character == '>') return MakeGreaterThan();
+		if (character == '<') return MakeLessThan();
+
 		return character switch {
 			'(' => MakeToken(Token.EType.OpenParenthesis, character),
 			')' => MakeToken(Token.EType.CloseParenthesis, character),
@@ -91,7 +101,6 @@ public class Lexer {
 			'^' => MakeToken(Token.EType.Power, character),
 			'%' => MakeToken(Token.EType.Modulo, character),
 			'$' => MakeToken(Token.EType.Variable, character),
-			'=' => MakeToken(Token.EType.Equals, character),
 			_   => MakeToken(Token.EType.Invalid, CurrentCharacter)
 		};
 
@@ -143,6 +152,7 @@ public class Lexer {
 	/// Makes a token from a type and value and advances to the character after it
 	/// </summary>
 	/// <param name="type"></param>
+	/// <param name="value"></param>
 	/// <param name="steps"></param>
 	/// <returns></returns>
 	private Token MakeToken(Token.EType type, object? value = null, int steps = 1) {
@@ -193,5 +203,27 @@ public class Lexer {
 		return new(Token.EType.Identifier, identifierString, startPosition, _currentPosition);
 	}
 
+	private Token MakeOperator(Token.EType singleType, Token.EType equalsType)
+	{
+		var startPosition = _currentPosition.Clone();
+		var tokenType = singleType;
+		var tokenString = CurrentCharacter.ToString();
+		
+		Advance();
+
+		if (CurrentCharacter == '=') {
+			Advance();
+			
+			tokenString += CurrentCharacter;
+			tokenType = equalsType;
+		}
+		
+		return new(tokenType, tokenString, startPosition, _currentPosition);
+	}
+	private Token MakeEquals() => MakeOperator(Token.EType.Equals, Token.EType.DoubleEquals);
+	private Token MakeGreaterThan() => MakeOperator(Token.EType.GreaterThan, Token.EType.GreaterThanEquals);
+	private Token MakeLessThan() => MakeOperator(Token.EType.LessThan, Token.EType.LessThanEquals);
+
 	#endregion
+
 }
