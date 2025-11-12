@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Core;
 
 public class Parser(Lexer lexer) {
@@ -30,7 +32,34 @@ public class Parser(Lexer lexer) {
 	
 	#region Syntax
 
-	private Node Expression() => ArithmeticExpression();
+	private bool Attempt<T>(Func<Node> syntax, [NotNullWhen(true)] out T? output) where T : Node
+	{
+		if (CurrentToken.Type == Token.EType.None) {
+			output = null;
+			return false;
+		}
+		
+		var startPosition = CurrentToken.StartPosition.Clone();
+		var node = syntax();
+		output = node as T;
+
+		if (node is T)
+			return! true;
+		
+		// If failed, go back and advance
+		Lexer.GoTo(startPosition);
+		Advance();
+		
+		return false;
+	}
+
+	private Node Expression()
+	{
+		if (Attempt<VariableAssignmentNode>(VariableAssignmentExpression, out var variableAssignment))
+			return variableAssignment;
+
+		return ArithmeticExpression();
+	}
 
 	private Node ArithmeticOperation(Token.EType[] operationTypes, Func<Node> syntax) {
 		Node currentNode = syntax();
@@ -55,7 +84,18 @@ public class Parser(Lexer lexer) {
 
 	private Node VariableAssignmentExpression()
 	{
-		// TODO
+		var variable = Variable();
+
+		if (variable is not VariableNode variableNode)
+			return new ErrorNode($"Expected variable, got {variable}", variable.StartPosition, variable.EndPosition);
+
+		if (CurrentToken.Type != Token.EType.Equals)
+			return new ErrorNode($"Expected equals, got {CurrentToken.Type}", CurrentToken.StartPosition, CurrentToken.EndPosition);
+
+		Advance();
+
+		var valueNode = Expression();
+		return new VariableAssignmentNode(variableNode, valueNode);
 	}
 
 	private Node Variable()
@@ -115,17 +155,9 @@ public class Parser(Lexer lexer) {
 
 	private Node BaseAtom() {
 		Token token = CurrentToken;
-		
-		// Check for a variable
-		var startPosition = token.StartPosition.Clone();
-		var variable = Variable();
-		
-		if (variable is VariableNode variableNode)
-			return new VariableAccessNode(variableNode);
-		
-		// If failed, go back
-		Lexer.GoTo(startPosition);
-		Advance();
+
+		if (Attempt<VariableNode>(Variable, out var variable)) 
+			return new VariableAccessNode(variable);	
 		
 		if (token.Type == Token.EType.Number)
 			return new LiteralNode(token);
