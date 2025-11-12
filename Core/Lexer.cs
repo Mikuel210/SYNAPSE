@@ -20,7 +20,8 @@ public struct Token(Token.EType type, object? value, Position start, Position en
 		Modulo,
 		
 		Variable,
-		Identifier
+		Identifier,
+		Equals
 
 	}
 
@@ -90,6 +91,7 @@ public class Lexer {
 			'^' => MakeToken(Token.EType.Power, character),
 			'%' => MakeToken(Token.EType.Modulo, character),
 			'$' => MakeToken(Token.EType.Variable, character),
+			'=' => MakeToken(Token.EType.Equals, character),
 			_   => MakeToken(Token.EType.Invalid, CurrentCharacter)
 		};
 

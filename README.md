@@ -18,7 +18,8 @@ With RUNTIME, you can:
 - ✔ Interact DIRECTLY with the interpreter
 - ✔ Modify the RUNNING PROGRAM in real time
 
-Let's unleash the power computers are ACTUALLY capable of...
+Whereas in other languages these features are hacks, in RUNTIME, they're expected. Let's unleash the power computers 
+are ACTUALLY capable of...
 
 - ✔ Self debugging code
 - ✔ Self evolving neural networks

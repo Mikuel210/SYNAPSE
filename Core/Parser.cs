@@ -53,6 +53,11 @@ public class Parser(Lexer lexer) {
 		);
 	}
 
+	private Node VariableAssignmentExpression()
+	{
+		// TODO
+	}
+
 	private Node Variable()
 	{
 		Token token = CurrentToken;
