@@ -49,29 +49,37 @@ public static class Interpreter {
 		new Error(node.Message, node.StartPosition, node.EndPosition, context);
 
 	private static IValue VisitUnaryOperationNode(UnaryOperationNode node, Context context) {
-		var operationCharacter = (char)node.OperationToken.Value!;
+		var operation = node.OperationToken.Value!.ToString();
 		IValue baseValue = Visit(node.BaseNode, context);
+		
+		// TODO: Add not
 
-		if (operationCharacter == '+') return baseValue;
+		if (operation == "+") return baseValue;
 
-		switch (baseValue) {
-			case Number number: return new Number(-number.Value, node.StartPosition, node.EndPosition, context);
-			default: throw new NotImplementedException($"Unary operation is not implemented for {baseValue.GetType().Name}");
-		}
+		return baseValue switch {
+			Number number => new Number(-number.Value, node.StartPosition, node.EndPosition, context),
+			_ => throw new NotImplementedException($"Unary operation is not implemented for {baseValue.GetType().Name}")
+		};
 	}
 	
 	private static IValue VisitBinaryOperationNode(BinaryOperationNode node, Context context) {
 		// TODO: Tokens should inherit from a base class so this doesnt happen:
-		var operationCharacter = (char)node.OperationToken.Value!;
+		var operation = node.OperationToken.Value!.ToString();
 		IValue leftValue = Visit(node.LeftNode, context);
 		IValue rightValue = Visit(node.RightNode, context);
 
-		return operationCharacter switch {
-			'+' => leftValue.AddedTo(rightValue),
-			'-' => leftValue.SubtractedBy(rightValue),
-			'*' => leftValue.MultipliedBy(rightValue),
-			'/' => leftValue.DividedBy(rightValue),
-			_ => leftValue.ReducedTo(rightValue)
+		return operation switch {
+			"+"  => leftValue.AddedTo(rightValue),
+			"-"  => leftValue.SubtractedBy(rightValue),
+			"*"  => leftValue.MultipliedBy(rightValue),
+			"/"  => leftValue.DividedBy(rightValue),
+			"%"  => leftValue.ReducedTo(rightValue),
+			"==" => leftValue.IsEquals(rightValue),
+			">"  => leftValue.IsGreaterThan(rightValue),
+			">=" => leftValue.IsGreaterThanEquals(rightValue),
+			"<"  => leftValue.IsLessThan(rightValue),
+			"<=" => leftValue.IsLessThanEquals(rightValue),
+			_    => throw new NotImplementedException($"Binary operation not implemented: {operation}")
 		};
 	}
 

@@ -17,9 +17,15 @@ public interface IValue {
 	IValue DividedBy(IValue value);
 	IValue PoweredBy(IValue value);
 	IValue ReducedTo(IValue value);
+	
+	Number IsEquals(IValue value);
+	Number IsGreaterThan(IValue value);
+	Number IsGreaterThanEquals(IValue value);
+	Number IsLessThan(IValue value);
+	Number IsLessThanEquals(IValue value);
 
 	#endregion
-	
+
 }
 
 public abstract class GenericValue<TSelf, TValue>(TValue value, Position start, Position end, Context context) : IValue where TSelf : IValue{
@@ -50,8 +56,26 @@ public abstract class GenericValue<TSelf, TValue>(TValue value, Position start, 
 	public abstract IValue PoweredBy(IValue value);
 	public abstract IValue ReducedTo(IValue value);
 
+	public abstract Number IsEquals(IValue value);
+	public abstract Number IsGreaterThan(IValue value);
+	public Number IsGreaterThanEquals(IValue value)
+	{
+		bool isEquals = IsEquals(value).Value != 0;
+		bool isGreaterThan = IsGreaterThan(value).Value != 0;
+
+		return new(isEquals || isGreaterThan ? 1 : 0, StartPosition, EndPosition, Context);
+	}
+	public abstract Number IsLessThan(IValue value);
+	public Number IsLessThanEquals(IValue value)
+	{
+		bool isEquals = IsEquals(value).Value != 0;
+		bool isLessThan = IsLessThan(value).Value != 0;
+
+		return new(isEquals || isLessThan ? 1 : 0, StartPosition, EndPosition, Context);
+	}
+
 	#endregion
-	
+
 }
 
 #region Values
@@ -127,6 +151,10 @@ public class Number(float value, Position start, Position end, Context context) 
 		
 		throw new NotImplementedException("Operation not implemented");
 	}
+
+	public override Number IsEquals(IValue value) => throw new NotImplementedException("Operation not implemented");
+	public override Number IsGreaterThan(IValue value) => throw new NotImplementedException("Operation not implemented");
+	public override Number IsLessThan(IValue value) => throw new NotImplementedException("Operation not implemented");
 	
 }
 
@@ -141,6 +169,10 @@ public class Text(string value, Position start, Position end, Context context) :
 	public override IValue DividedBy(IValue value) => throw new NotImplementedException("Operation not implemented");
 	public override IValue PoweredBy(IValue value) => throw new NotImplementedException("Operation not implemented");
 	public override IValue ReducedTo(IValue value) => throw new NotImplementedException("Operation not implemented");
+	
+	public override Number IsEquals(IValue value) => throw new NotImplementedException("Operation not implemented");
+	public override Number IsGreaterThan(IValue value) => throw new NotImplementedException("Operation not implemented");
+	public override Number IsLessThan(IValue value) => throw new NotImplementedException("Operation not implemented");
 	
 }
 
@@ -164,6 +196,12 @@ public class Null(Position start, Position end, Context context) : IValue {
 	public IValue DividedBy(IValue value) => throw new NotImplementedException("Operation not implemented");
 	public IValue PoweredBy(IValue value) => throw new NotImplementedException("Operation not implemented");
 	public IValue ReducedTo(IValue value) => throw new NotImplementedException("Operation not implemented");
+	
+	public Number IsEquals(IValue value) => throw new NotImplementedException("Operation not implemented");
+	public Number IsGreaterThan(IValue value) => throw new NotImplementedException("Operation not implemented");
+	public Number IsGreaterThanEquals(IValue value) => throw new NotImplementedException("Operation not implemented");
+	public Number IsLessThan(IValue value) => throw new NotImplementedException("Operation not implemented");
+	public Number IsLessThanEquals(IValue value) => throw new NotImplementedException("Operation not implemented");
 	
 }
 
@@ -191,6 +229,12 @@ public class Error(string message, Position start, Position end, Context context
 	public IValue DividedBy(IValue value) => throw new NotImplementedException("Operation not implemented");
 	public IValue PoweredBy(IValue value) => throw new NotImplementedException("Operation not implemented");
 	public IValue ReducedTo(IValue value) => throw new NotImplementedException("Operation not implemented");
+	
+	public Number IsEquals(IValue value) => throw new NotImplementedException("Operation not implemented");
+	public Number IsGreaterThan(IValue value) => throw new NotImplementedException("Operation not implemented");
+	public Number IsGreaterThanEquals(IValue value) => throw new NotImplementedException("Operation not implemented");
+	public Number IsLessThan(IValue value) => throw new NotImplementedException("Operation not implemented");
+	public Number IsLessThanEquals(IValue value) => throw new NotImplementedException("Operation not implemented");
 	
 }
 
