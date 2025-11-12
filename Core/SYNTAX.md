@@ -15,14 +15,14 @@ GTE = GREATER THAN OR EQUALS
 - **Expression**: VariableAssignmentExpression
     ComparisonExpression ((KEYWORD:and|or) ComparisonExpression)*
 
-- **ComparisonExpression**: not ComparisonExpression
+- **ComparisonExpression**: KEYWORD:not ComparisonExpression
     ArithmeticExpression ((EE|LT|GT|LTE|GTE) ArithmeticExpression)*
    
 - **ArithmeticExpression**: Term ((ADD|SUBTRACT) Term)*
 
 - **VariableAssignmentExpression**: Variable EQUALS Expression
 
-- **Variable**: VARIABLE (IDENTIFIER|BaseAtom)
+- **Variable**: VARIABLE (IDENTIFIER|KEYWORD|BaseAtom)
     IDENTIFIER
 
 - **Term**: Factor ((MULTIPLY|DIVIDE) Factor)*

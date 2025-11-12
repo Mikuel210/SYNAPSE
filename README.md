@@ -13,17 +13,17 @@ unfiltered creativity to life.
 
 With RUNTIME, you can:
 
-- ✔ Declare variables and functions from dynamic names
-- ✔ Execute code and declare functions dynamically
-- ✔ Interact DIRECTLY with the interpreter
-- ✔ Modify the RUNNING PROGRAM in real time
+- [x] Declare and update variables and functions from dynamic names
+- [x] Execute code on the fly and declare functions dynamically
+- [x] Interact DIRECTLY with the interpreter
+- [x] Modify and debug the RUNNING PROGRAM in real time
 
 Whereas in other languages these features are hacks, in RUNTIME, they're expected. Let's unleash the power computers 
 are ACTUALLY capable of...
 
-- ✔ Self debugging code
-- ✔ Self evolving neural networks
-- ✔ On demand AI written features
+- [x] Self debugging code
+- [x] Self evolving neural networks
+- [x] On demand AI written features
   
 With RUNTIME, you can do that and much more.
 

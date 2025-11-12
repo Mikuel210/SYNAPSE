@@ -7,6 +7,7 @@ public struct Token(Token.EType type, object? value, Position start, Position en
 		None, // Default value when no tokens are left
 		Invalid,
 		NewLine,
+		Keyword,
 		
 		OpenParenthesis,
 		CloseParenthesis,
@@ -32,13 +33,14 @@ public struct Token(Token.EType type, object? value, Position start, Position en
 	}
 
 	public EType Type { get; set; } = type;
-	public object? Value { get; set; } = value;
+	public object? Value { get; } = value;
 	public Position StartPosition { get; } = start;
 	public Position EndPosition { get; } = end;
 
-	public T? GetValueAs<T>() where T : class => Value as T;
-	public void SetValue<T>(T value) where T : class => Value = value;
-
+	
+	// TODO: public bool TryGetValue<T>(out T value) ?????
+	
+	public bool Matches(EType type, object? value) => Type == type && Value == value;
 	public override string ToString() => Type + (Value == null ? "" : $": {Value}");
 
 }
@@ -59,6 +61,8 @@ public class Lexer {
 	private Position _currentPosition;
 	private char CurrentCharacter => Scope.Text.ElementAtOrDefault(_currentPosition.Index);
 
+	private static string[] Keywords => ["not", "and", "or"];
+	
 	
 	public Lexer(Scope scope) {
 		Scope = scope;
@@ -200,7 +204,8 @@ public class Lexer {
 			Advance();
 		}
 
-		return new(Token.EType.Identifier, identifierString, startPosition, _currentPosition);
+		var tokenType = Keywords.Contains(identifierString) ? Token.EType.Keyword : Token.EType.Identifier;
+		return new(tokenType, identifierString, startPosition, _currentPosition);
 	}
 
 	private Token MakeOperator(Token.EType singleType, Token.EType equalsType)

@@ -32,7 +32,7 @@ public class Parser(Lexer lexer) {
 	
 	#region Syntax
 
-	private bool Attempt<T>(Func<Node> syntax, [NotNullWhen(true)] out T? output) where T : Node
+	private bool Attempt(Func<Node> syntax, [NotNullWhen(true)] out Node? output, Func<Node, bool> condition)
 	{
 		output = null;
 		
@@ -42,8 +42,8 @@ public class Parser(Lexer lexer) {
 		var startPosition = CurrentToken.StartPosition.Clone();
 		var node = syntax();
 
-		if (node is T) {
-			output = (T)node;
+		if (condition(node)) {
+			output = node;
 			return true;
 		}
 		
@@ -52,15 +52,28 @@ public class Parser(Lexer lexer) {
 		return false;
 	}
 
+	private bool Attempt<T>(Func<Node> syntax, [NotNullWhen(true)] out T? output)
+		where T : Node
+	{
+		var result = Attempt(syntax, out var node, node => node is T);
+		
+		output = node as T;
+		return result;
+	}
+
+	private bool Attempt(Func<Node> syntax, [NotNullWhen(true)] out Node? output)
+		=> Attempt(syntax, out output, node => node is not ErrorNode);
+	
+
 	private Node Expression()
 	{
 		if (Attempt<VariableAssignmentNode>(VariableAssignmentExpression, out var variableAssignment))
 			return variableAssignment;
 
-		return ArithmeticExpression();
+		return ComparisonExpression(); // TODO
 	}
-
-	private Node ArithmeticOperation(Token.EType[] operationTypes, Func<Node> syntax) {
+	
+	private Node BinaryOperation(Token.EType[] operationTypes, Func<Node> syntax) {
 		Node currentNode = syntax();
 
 		while (operationTypes.Contains(CurrentToken.Type)) {
@@ -73,9 +86,32 @@ public class Parser(Lexer lexer) {
 
 		return currentNode;
 	}
+
+	private Node ComparisonExpression()
+	{
+		var token = CurrentToken;
+		
+		if (token.Matches(Token.EType.Keyword, "not")) {
+			Advance();
+
+			var comparison = ComparisonExpression();
+			return new UnaryOperationNode(token, comparison);
+		}
+		
+		return BinaryOperation(
+			[
+				Token.EType.DoubleEquals, 
+				Token.EType.LessThan, 
+				Token.EType.GreaterThan, 
+				Token.EType.LessThanEquals,
+				Token.EType.GreaterThanEquals
+			],
+			ArithmeticExpression
+		);
+	}
 	
 	private Node ArithmeticExpression() {
-		return ArithmeticOperation(
+		return BinaryOperation(
 			[Token.EType.Add, Token.EType.Subtract],
 			Term
 		);
@@ -109,7 +145,7 @@ public class Parser(Lexer lexer) {
 			return new VariableNode(BaseAtom());
 		}
 
-		if (token.Type == Token.EType.Identifier) goto Identifier;
+		if (token.Type is Token.EType.Identifier or Token.EType.Keyword) goto Identifier;
 		return new ErrorNode($"Expected variable, got {token.Type}", token.StartPosition, token.EndPosition);
 		
 		Identifier:
@@ -118,7 +154,7 @@ public class Parser(Lexer lexer) {
 	}
 	
 	private Node Term() {
-		return ArithmeticOperation(
+		return BinaryOperation(
 			[Token.EType.Multiply, Token.EType.Divide, Token.EType.Modulo],
 			Factor
 		);	

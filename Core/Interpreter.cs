@@ -32,8 +32,13 @@ public static class Interpreter {
 		Token token = node.Token;
 		
 		switch (token.Type) {
-			case Token.EType.Number: return Number.FromToken(token, context);
-			case Token.EType.Identifier: return Text.FromToken(token, context);
+			case Token.EType.Number: 
+				return Number.FromToken(token, context);
+			
+			case Token.EType.Identifier: 
+			case Token.EType.Keyword: 
+				return Text.FromToken(token, context);
+			
 			default: throw new InvalidOperationException($"Attempted to make a value from {token.Type} literal"); 
 		}
 	}
