@@ -34,22 +34,21 @@ public class Parser(Lexer lexer) {
 
 	private bool Attempt<T>(Func<Node> syntax, [NotNullWhen(true)] out T? output) where T : Node
 	{
-		if (CurrentToken.Type == Token.EType.None) {
-			output = null;
+		output = null;
+		
+		if (CurrentToken.Type == Token.EType.None)
 			return false;
-		}
 		
 		var startPosition = CurrentToken.StartPosition.Clone();
 		var node = syntax();
-		output = node as T;
 
-		if (node is T)
-			return! true;
+		if (node is T) {
+			output = (T)node;
+			return true;
+		}
 		
-		// If failed, go back and advance
+		// If failed, go back
 		Lexer.GoTo(startPosition);
-		Advance();
-		
 		return false;
 	}
 
@@ -156,8 +155,10 @@ public class Parser(Lexer lexer) {
 	private Node BaseAtom() {
 		Token token = CurrentToken;
 
-		if (Attempt<VariableNode>(Variable, out var variable)) 
-			return new VariableAccessNode(variable);	
+		if (Attempt<VariableNode>(Variable, out var variable))
+			return new VariableAccessNode(variable);
+
+		Advance();
 		
 		if (token.Type == Token.EType.Number)
 			return new LiteralNode(token);

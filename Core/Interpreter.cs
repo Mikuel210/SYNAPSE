@@ -84,6 +84,15 @@ public static class Interpreter {
 		return context.Scope.VariableTable.Get(variable.variableName, node.StartPosition, node.EndPosition, context);
 	}
 
+	private static IValue VisitVariableAssignmentNode(VariableAssignmentNode node, Context context)
+	{
+		var variable = VariableData.FromVariableNode(node.VariableNode, context);
+		var value = Visit(node.ValueNode, context);
+		context.Scope.VariableTable.Set(variable.variableName, value);
+		
+		return value;
+	}
+
 	#endregion
 
 }

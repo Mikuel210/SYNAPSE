@@ -2,17 +2,20 @@
 
 namespace CLI;
 
-class Program {
+class Program
+{
+
+	private static readonly Scope _scope = new("Program", "");
+	private static readonly Lexer _lexer = new(_scope);
+	private static readonly Parser _parser = new(_lexer);
 
 	static void Main(string[] args) {
 		while (true) {
 			Console.Write("RUNTIME > ");
-			var scope = new Scope("Program", Console.ReadLine()!);
-			var lexer = new Lexer(scope);
-			var parser = new Parser(lexer);
+			_scope.AppendText(Console.ReadLine()!);
 
-			var context = new Context(scope);
-			var output = Interpreter.Interpret(parser, context);
+			var context = new Context(_scope);
+			var output = Interpreter.Interpret(_parser, context);
 			output.ForEach(e => Console.WriteLine(e.Value));	
 		}
 	}

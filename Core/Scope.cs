@@ -8,6 +8,7 @@ public class VariableTable(Scope scope)
 	
 	public IValue Get(IValue key, Position start, Position end, Context context, bool isExplicit = false)
 	{
+		_variables.ToList().ForEach(e => Console.WriteLine($"{e.Key.Value} ::::: {key.Value}"));
 		var value = _variables.FirstOrDefault(e => e.Key.Value == key.Value).Value;
 		if (value != null) return value;
 		
@@ -16,7 +17,11 @@ public class VariableTable(Scope scope)
 		
 		return Scope.ParentScope.VariableTable.Get(key, start, end, context, isExplicit);
 	}
-	public void Set(IValue key, IValue value) => _variables[key] = value;
+
+	public void Set(IValue key, IValue value)
+	{
+		_variables[key] = value; // TODO:!!!!!	
+	}
 	public void Remove(IValue key)
 	{
 		var dictionaryKey = _variables.FirstOrDefault(e => e.Key.Value == key.Value).Key;
