@@ -203,7 +203,7 @@ public class Lexer {
 			identifierString += CurrentCharacter;
 			Advance();
 		}
-
+		
 		var tokenType = Keywords.Contains(identifierString) ? Token.EType.Keyword : Token.EType.Identifier;
 		return new(tokenType, identifierString, startPosition, _currentPosition);
 	}

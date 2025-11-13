@@ -13,9 +13,11 @@ GTE = GREATER THAN OR EQUALS
 ## SYNAPSE Syntax
  
 - **Expression**: VariableAssignmentExpression
-    ComparisonExpression ((KEYWORD:and|or) ComparisonExpression)*
+    LogicalExpression
 
-- **ComparisonExpression**: KEYWORD:not ComparisonExpression
+- **LogicalExpression**: ComparisonExpression ((AND|OR) ComparisonExpression)*
+
+- **ComparisonExpression**: NOT ComparisonExpression
     ArithmeticExpression ((EE|LT|GT|LTE|GTE) ArithmeticExpression)*
    
 - **ArithmeticExpression**: Term ((ADD|SUBTRACT) Term)*

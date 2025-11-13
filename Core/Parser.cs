@@ -70,13 +70,13 @@ public class Parser(Lexer lexer) {
 		if (Attempt<VariableAssignmentNode>(VariableAssignmentExpression, out var variableAssignment))
 			return variableAssignment;
 
-		return ComparisonExpression(); // TODO
+		return LogicalExpression();
 	}
 	
-	private Node BinaryOperation(Token.EType[] operationTypes, Func<Node> syntax) {
+	private Node BinaryOperation(Func<Token, bool> condition, Func<Node> syntax) {
 		Node currentNode = syntax();
 
-		while (operationTypes.Contains(CurrentToken.Type)) {
+		while (condition(CurrentToken)) {
 			Token operationToken = CurrentToken;
 			Advance();
 
@@ -85,6 +85,19 @@ public class Parser(Lexer lexer) {
 		}
 
 		return currentNode;
+	}
+	
+	private Node BinaryOperation(Token.EType[] operationTypes, Func<Node> syntax)
+		=> BinaryOperation(token => operationTypes.Contains(token.Type), syntax);
+
+	private Node LogicalExpression()
+	{
+		return BinaryOperation(
+			token => token.Type == Token.EType.Keyword && 
+					 new[] { "and", "or" }.Contains(token.Value),
+			
+			ComparisonExpression
+		);
 	}
 
 	private Node ComparisonExpression()
@@ -141,11 +154,11 @@ public class Parser(Lexer lexer) {
 			Advance();
 			token = CurrentToken;
 
-			if (CurrentToken.Type == Token.EType.Identifier) goto Identifier;
+			if (CurrentToken.Type is Token.EType.Identifier or Token.EType.Keyword) goto Identifier;
 			return new VariableNode(BaseAtom());
 		}
 
-		if (token.Type is Token.EType.Identifier or Token.EType.Keyword) goto Identifier;
+		if (token.Type is Token.EType.Identifier) goto Identifier;
 		return new ErrorNode($"Expected variable, got {token.Type}", token.StartPosition, token.EndPosition);
 		
 		Identifier:
