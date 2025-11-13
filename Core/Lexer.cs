@@ -217,10 +217,10 @@ public class Lexer {
 		Advance();
 
 		if (CurrentCharacter == '=') {
-			Advance();
-			
 			tokenString += CurrentCharacter;
 			tokenType = equalsType;
+			
+			Advance();
 		}
 		
 		return new(tokenType, tokenString, startPosition, _currentPosition);

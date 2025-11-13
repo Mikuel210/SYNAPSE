@@ -65,7 +65,13 @@ public abstract class GenericValue<TSelf, TValue>(TValue value, Position start, 
 
 		return new(isEquals || isGreaterThan ? 1 : 0, StartPosition, EndPosition, Context);
 	}
-	public abstract Number IsLessThan(IValue value);
+	public Number IsLessThan(IValue value)
+	{
+		var isEquals = IsEquals(value);
+		var isGreaterThan = IsGreaterThan(value);
+
+		return new(isEquals.Value == 0 && isGreaterThan.Value == 0 ? 1 : 0, StartPosition, EndPosition, Context);
+	}
 	public Number IsLessThanEquals(IValue value)
 	{
 		bool isEquals = IsEquals(value).Value != 0;
@@ -80,7 +86,7 @@ public abstract class GenericValue<TSelf, TValue>(TValue value, Position start, 
 
 #region Values
 
-public class Number(float value, Position start, Position end, Context context) : GenericValue<Number, float>(value, start, end, context) {
+public class Number(double value, Position start, Position end, Context context) : GenericValue<Number, double>(value, start, end, context) {
 
 	public static Number FromToken(Token token, Context context) => 
 		new((float)token.Value!, token.StartPosition, token.EndPosition, context);
@@ -133,7 +139,7 @@ public class Number(float value, Position start, Position end, Context context) 
 		switch (value) {
 			case Number number:
 				var clone = Clone();
-				clone.Value = MathF.Pow(clone.Value, number.Value);
+				clone.Value = Math.Pow(clone.Value, number.Value);
 
 				return clone;
 		}
@@ -152,9 +158,30 @@ public class Number(float value, Position start, Position end, Context context) 
 		throw new NotImplementedException("Operation not implemented");
 	}
 
-	public override Number IsEquals(IValue value) => throw new NotImplementedException("Operation not implemented");
-	public override Number IsGreaterThan(IValue value) => throw new NotImplementedException("Operation not implemented");
-	public override Number IsLessThan(IValue value) => throw new NotImplementedException("Operation not implemented");
+	public override Number IsEquals(IValue value)
+	{
+		switch (value) {
+			case Number number:
+				var clone = Clone();
+				clone.Value = Value.ApproximatelyEquals(number.Value) ? 1 : 0;
+
+				return clone;
+		}
+		
+		throw new NotImplementedException("Operation not implemented");
+	}
+	public override Number IsGreaterThan(IValue value)
+	{
+		switch (value) {
+			case Number number:
+				var clone = Clone();
+				clone.Value = Value > number.Value ? 1 : 0;
+
+				return clone;
+		}
+		
+		throw new NotImplementedException("Operation not implemented");
+	}
 	
 }
 
@@ -172,7 +199,6 @@ public class Text(string value, Position start, Position end, Context context) :
 	
 	public override Number IsEquals(IValue value) => throw new NotImplementedException("Operation not implemented");
 	public override Number IsGreaterThan(IValue value) => throw new NotImplementedException("Operation not implemented");
-	public override Number IsLessThan(IValue value) => throw new NotImplementedException("Operation not implemented");
 	
 }
 
