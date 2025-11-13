@@ -35,8 +35,9 @@ public static class Interpreter {
 			case Token.EType.Number: 
 				return Number.FromToken(token, context);
 			
+			case Token.EType.Text:
 			case Token.EType.Identifier: 
-			case Token.EType.Keyword: 
+			case Token.EType.Keyword:
 				return Text.FromToken(token, context);
 			
 			default: throw new InvalidOperationException($"Attempted to make a value from {token.Type} literal"); 

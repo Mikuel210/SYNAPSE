@@ -94,7 +94,7 @@ public class Lexer {
 		if (character == '=') return MakeEquals();
 		if (character == '>') return MakeGreaterThan();
 		if (character == '<') return MakeLessThan();
-		if ("\"{}".Contains(character)) return MakeText();
+		if ("\"{".Contains(character)) return MakeText();
 
 		return character switch {
 			'(' => MakeToken(Token.EType.OpenParenthesis, character),
@@ -240,7 +240,9 @@ public class Lexer {
 		
 		if (startCharacter == '"') {
 			while (CurrentCharacter != '"') {
-				textString += '"';
+				if (CurrentCharacter == '\0') goto Invalid;
+				
+				textString += CurrentCharacter;
 				Advance();
 			}
 		}
@@ -248,6 +250,7 @@ public class Lexer {
 			var levels = 1;
 
 			while (true) {
+				if (CurrentCharacter == '\0') goto Invalid;
 				if (CurrentCharacter == '{') levels++;
 				if (CurrentCharacter == '}') levels--;
 				if (levels == 0) break;
@@ -258,8 +261,10 @@ public class Lexer {
 		}
 
 		Advance();
-
 		return new(Token.EType.Text, textString, startPosition, _currentPosition);
+		
+		Invalid:
+		return new(Token.EType.Invalid, textString, startPosition, _currentPosition);
 	}
 
 	#endregion

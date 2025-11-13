@@ -209,7 +209,7 @@ public class Parser(Lexer lexer) {
 
 		Advance();
 		
-		if (token.Type == Token.EType.Number)
+		if (token.Type is Token.EType.Number or Token.EType.Text)
 			return new LiteralNode(token);
 		
 		if (token.Type == Token.EType.OpenParenthesis) {
@@ -227,7 +227,7 @@ public class Parser(Lexer lexer) {
 			return expression;
 		}
 		
-		return new ErrorNode($"Expected number, got {token.Type}", token.StartPosition, token.EndPosition);
+		return new ErrorNode($"Expected number or text, got {token.Type}", token.StartPosition, token.EndPosition);
 	}
 
 	#endregion
