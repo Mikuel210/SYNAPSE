@@ -36,11 +36,9 @@ public struct Token(Token.EType type, object? value, Position start, Position en
 	public object? Value { get; } = value;
 	public Position StartPosition { get; } = start;
 	public Position EndPosition { get; } = end;
-
 	
-	// TODO: public bool TryGetValue<T>(out T value) ?????
 	
-	public bool Matches(EType type, object? value) => Type == type && Value == value;
+	public bool Matches(EType type, object? value) => Type == type && Value.EqualsSafe(value);
 	public override string ToString() => Type + (Value == null ? "" : $": {Value}");
 
 }

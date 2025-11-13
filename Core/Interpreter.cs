@@ -51,15 +51,23 @@ public static class Interpreter {
 	private static IValue VisitUnaryOperationNode(UnaryOperationNode node, Context context) {
 		var operation = node.OperationToken.Value!.ToString();
 		IValue baseValue = Visit(node.BaseNode, context);
-		
-		// TODO: Add not
 
-		if (operation == "+") return baseValue;
-
-		return baseValue switch {
-			Number number => new Number(-number.Value, node.StartPosition, node.EndPosition, context),
-			_ => throw new NotImplementedException($"Unary operation is not implemented for {baseValue.GetType().Name}")
-		};
+		switch (operation) {
+			case "+":
+				return baseValue;
+			
+			case "-":
+				return baseValue switch {
+					Number number => new Number(-number.Value, node.StartPosition, node.EndPosition, context),
+					_ => throw new NotImplementedException($"Unary operation is not implemented for {baseValue.GetType().Name}")
+				};
+			
+			case "not":
+				return baseValue.Not();
+				
+			default:
+				throw new NotImplementedException("Operation not implemented");
+		}
 	}
 	
 	private static IValue VisitBinaryOperationNode(BinaryOperationNode node, Context context) {
@@ -69,17 +77,19 @@ public static class Interpreter {
 		IValue rightValue = Visit(node.RightNode, context);
 
 		return operation switch {
-			"+"  => leftValue.AddedTo(rightValue),
-			"-"  => leftValue.SubtractedBy(rightValue),
-			"*"  => leftValue.MultipliedBy(rightValue),
-			"/"  => leftValue.DividedBy(rightValue),
-			"%"  => leftValue.ReducedTo(rightValue),
-			"==" => leftValue.IsEquals(rightValue),
-			">"  => leftValue.IsGreaterThan(rightValue),
-			">=" => leftValue.IsGreaterThanEquals(rightValue),
-			"<"  => leftValue.IsLessThan(rightValue),
-			"<=" => leftValue.IsLessThanEquals(rightValue),
-			_    => throw new NotImplementedException($"Binary operation not implemented: {operation}")
+			"+"   => leftValue.AddedTo(rightValue),
+			"-"   => leftValue.SubtractedBy(rightValue),
+			"*"   => leftValue.MultipliedBy(rightValue),
+			"/"   => leftValue.DividedBy(rightValue),
+			"%"   => leftValue.ReducedTo(rightValue),
+			"=="  => leftValue.IsEquals(rightValue),
+			">"   => leftValue.IsGreaterThan(rightValue),
+			">="  => leftValue.IsGreaterThanEquals(rightValue),
+			"<"   => leftValue.IsLessThan(rightValue),
+			"<="  => leftValue.IsLessThanEquals(rightValue),
+			"and" => leftValue.And(rightValue),
+			"or"  => leftValue.Or(rightValue),
+			_     => throw new NotImplementedException($"Binary operation not implemented: {operation}")
 		};
 	}
 
