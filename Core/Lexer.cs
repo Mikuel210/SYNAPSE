@@ -28,7 +28,9 @@ public struct Token(Token.EType type, object? value, Position start, Position en
 		LessThan,
 		GreaterThan,
 		LessThanEquals,
-		GreaterThanEquals
+		GreaterThanEquals,
+		
+		Text
 
 	}
 
@@ -92,6 +94,7 @@ public class Lexer {
 		if (character == '=') return MakeEquals();
 		if (character == '>') return MakeGreaterThan();
 		if (character == '<') return MakeLessThan();
+		if ("\"{}".Contains(character)) return MakeText();
 
 		return character switch {
 			'(' => MakeToken(Token.EType.OpenParenthesis, character),
@@ -226,6 +229,38 @@ public class Lexer {
 	private Token MakeEquals() => MakeOperator(Token.EType.Equals, Token.EType.DoubleEquals);
 	private Token MakeGreaterThan() => MakeOperator(Token.EType.GreaterThan, Token.EType.GreaterThanEquals);
 	private Token MakeLessThan() => MakeOperator(Token.EType.LessThan, Token.EType.LessThanEquals);
+
+	private Token MakeText()
+	{
+		var startPosition = _currentPosition.Clone();
+		var textString = "";
+		var startCharacter = CurrentCharacter;
+			
+		Advance();
+		
+		if (startCharacter == '"') {
+			while (CurrentCharacter != '"') {
+				textString += '"';
+				Advance();
+			}
+		}
+		else {
+			var levels = 1;
+
+			while (true) {
+				if (CurrentCharacter == '{') levels++;
+				if (CurrentCharacter == '}') levels--;
+				if (levels == 0) break;
+
+				textString += CurrentCharacter;
+				Advance();
+			}
+		}
+
+		Advance();
+
+		return new(Token.EType.Text, textString, startPosition, _currentPosition);
+	}
 
 	#endregion
 

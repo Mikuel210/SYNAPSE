@@ -34,7 +34,7 @@ GTE = GREATER THAN OR EQUALS
  
 - **Atom**: BaseAtom
  
-- **BaseAtom**: Number|Variable
+- **BaseAtom**: Number|Text|Variable
     OPEN_PARENTHESIS Expression CLOSE_PARENTHESIS
 
 
