@@ -16,16 +16,16 @@ public class Parser(Lexer lexer) {
 					Advance();	
 			}
 			else if (Lexer.TokenQueue.Count > 0) {
-				node = new ErrorNode(ErrorMessage.Expected(Token.EType.NewLine), CurrentToken.StartPosition, CurrentToken.EndPosition);
+				node = ErrorFactory.ExpectedNode(CurrentToken, Token.EType.NewLine);
 			}
 			
 			return node;
 		}
 
-		return new NullNode(
+		return new NullNode(new(
 			new(Lexer.Scope),
 			new(Lexer.Scope, Lexer.Scope.Text.Length)
-		);
+		));
 	}
 
 	private void Advance() => Lexer.TokenQueue.TryDequeue(out _);
@@ -39,7 +39,7 @@ public class Parser(Lexer lexer) {
 		if (CurrentToken.Type == Token.EType.None)
 			return false;
 		
-		var startPosition = CurrentToken.StartPosition.Clone();
+		var startPosition = CurrentToken.Bounds.Start.Clone();
 		var node = syntax();
 
 		if (condition(node)) {
@@ -135,10 +135,10 @@ public class Parser(Lexer lexer) {
 		var variable = Variable();
 
 		if (variable is not VariableNode variableNode)
-			return new ErrorNode(ErrorMessage.Expected(nameof(Variable), variable.GetType().Name), variable.StartPosition, variable.EndPosition);
+			return ErrorFactory.ExpectedNode(variable, nameof(Variable), variable.GetType().Name);
 
 		if (CurrentToken.Type != Token.EType.Equals)
-			return new ErrorNode(ErrorMessage.Expected(Token.EType.Equals, CurrentToken.Type), CurrentToken.StartPosition, CurrentToken.EndPosition);
+			return ErrorFactory.ExpectedNode(CurrentToken, Token.EType.Equals, CurrentToken.Type);
 
 		Advance();
 
@@ -159,7 +159,7 @@ public class Parser(Lexer lexer) {
 		}
 
 		if (token.Type is Token.EType.Identifier) goto Identifier;
-		return new ErrorNode(ErrorMessage.Expected(Token.EType.Variable, CurrentToken.Type), token.StartPosition, token.EndPosition);
+		return ErrorFactory.ExpectedNode(token, Token.EType.Variable, CurrentToken.Type);
 		
 		Identifier:
 			Advance();
@@ -216,19 +216,19 @@ public class Parser(Lexer lexer) {
 			if (CurrentToken.Type == Token.EType.CloseParenthesis) {
 				Advance();
 
-				return new ErrorNode(ErrorMessage.Expected(nameof(Expression)), CurrentToken.StartPosition, CurrentToken.EndPosition);
+				return ErrorFactory.ExpectedNode(CurrentToken, nameof(Expression));
 			}
 			
 			var expression = Expression();
 
 			if (CurrentToken.Type != Token.EType.CloseParenthesis)
-				return new ErrorNode(ErrorMessage.Expected(Token.EType.CloseParenthesis), CurrentToken.StartPosition, CurrentToken.EndPosition);
+				return ErrorFactory.ExpectedNode(CurrentToken, Token.EType.CloseParenthesis);
 
 			Advance();
 			return expression;
 		}
 		
-		return new ErrorNode(ErrorMessage.Expected([Token.EType.Number, Token.EType.Text, Token.EType.OpenParenthesis]), token.StartPosition, token.EndPosition);
+		return ErrorFactory.ExpectedNode(token, [Token.EType.Number, Token.EType.Text, Token.EType.OpenParenthesis]);
 	}
 
 	#endregion

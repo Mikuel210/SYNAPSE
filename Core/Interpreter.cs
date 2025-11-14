@@ -44,10 +44,10 @@ public static class Interpreter {
 		}
 	}
 
-	private static IValue VisitNullNode(NullNode node, Context context) => new Null(node.StartPosition, node.EndPosition, context);
+	private static IValue VisitNullNode(NullNode node, Context context) => new Null(node.Bounds, context);
 
 	private static IValue VisitErrorNode(ErrorNode node, Context context) =>
-		new Error(node.Message, node.StartPosition, node.EndPosition, context);
+		new Error(node.Message, node.Bounds, context);
 
 	private static IValue VisitUnaryOperationNode(UnaryOperationNode node, Context context) {
 		var operation = node.OperationToken.Value!.ToString();
@@ -59,7 +59,7 @@ public static class Interpreter {
 			
 			case "-":
 				return baseValue switch {
-					Number number => new Number(-number.Value, node.StartPosition, node.EndPosition, context),
+					Number number => new Number(-number.Value, node.Bounds, context),
 					_ => throw new NotImplementedException($"Unary operation is not implemented for {baseValue.GetType().Name}")
 				};
 			
@@ -105,7 +105,7 @@ public static class Interpreter {
 	private static IValue VisitVariableAccessNode(VariableAccessNode node, Context context)
 	{
 		var variable = VariableData.FromVariableNode(node.VariableNode, context);
-		return context.Scope.VariableTable.Get(variable.variableName, node.StartPosition, node.EndPosition, context);
+		return context.Scope.VariableTable.Get(variable.variableName, node.Bounds, context);
 	}
 
 	private static IValue VisitVariableAssignmentNode(VariableAssignmentNode node, Context context)

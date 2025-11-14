@@ -1,6 +1,6 @@
 ﻿namespace Core;
 
-public struct Token(Token.EType type, object? value, Position start, Position end) {
+public struct Token(Token.EType type, object? value, Bounds bounds) : IBounds {
 
 	public enum EType {
 		
@@ -36,9 +36,7 @@ public struct Token(Token.EType type, object? value, Position start, Position en
 
 	public EType Type { get; set; } = type;
 	public object? Value { get; } = value;
-	public Position StartPosition { get; } = start;
-	public Position EndPosition { get; } = end;
-	
+	public Bounds Bounds { get; } = bounds;
 	
 	public bool Matches(EType type, object? value) => Type == type && Value.EqualsSafe(value);
 	public override string ToString() => Type + (Value == null ? "" : $": {Value}");
@@ -146,7 +144,7 @@ public class Lexer {
 	/// <returns></returns>
 	public void Retokenize() {
 		if (TokenQueue.TryPeek(out var token))
-			TokenizeFrom(token.StartPosition);
+			TokenizeFrom(token.Bounds.Start);
 		else
 			TokenizeFrom(_currentPosition); // Tokenize from the end
 	}
@@ -165,7 +163,7 @@ public class Lexer {
 		Advance(steps);
 		
 		var end = _currentPosition;
-		Token token = new(type, value, start, end);
+		Token token = new(type, value, new(start, end));
 
 		return token;
 	}
@@ -192,7 +190,7 @@ public class Lexer {
 		}
 
 		float number = float.Parse(numberString);
-		return new(Token.EType.Number, number, startPosition, _currentPosition);
+		return new(Token.EType.Number, number, new(startPosition, _currentPosition));
 	}
 
 	private Token MakeIdentifier()
@@ -206,7 +204,7 @@ public class Lexer {
 		}
 		
 		var tokenType = Keywords.Contains(identifierString) ? Token.EType.Keyword : Token.EType.Identifier;
-		return new(tokenType, identifierString, startPosition, _currentPosition);
+		return new(tokenType, identifierString, new(startPosition, _currentPosition));
 	}
 
 	private Token MakeOperator(Token.EType singleType, Token.EType equalsType)
@@ -224,7 +222,7 @@ public class Lexer {
 			Advance();
 		}
 		
-		return new(tokenType, tokenString, startPosition, _currentPosition);
+		return new(tokenType, tokenString, new(startPosition, _currentPosition));
 	}
 	private Token MakeEquals() => MakeOperator(Token.EType.Equals, Token.EType.DoubleEquals);
 	private Token MakeGreaterThan() => MakeOperator(Token.EType.GreaterThan, Token.EType.GreaterThanEquals);
@@ -261,10 +259,10 @@ public class Lexer {
 		}
 
 		Advance();
-		return new(Token.EType.Text, textString, startPosition, _currentPosition);
+		return new(Token.EType.Text, textString, new(startPosition, _currentPosition));
 		
 		Invalid:
-		return new(Token.EType.Invalid, textString, startPosition, _currentPosition);
+		return new(Token.EType.Invalid, textString, new(startPosition, _currentPosition));
 	}
 
 	#endregion

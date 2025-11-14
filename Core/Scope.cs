@@ -6,15 +6,15 @@ public class VariableTable(Scope scope)
 	public Scope Scope { get; } = scope;
 	private readonly Dictionary<IValue, IValue> _variables = [];
 	
-	public IValue Get(IValue key, Position start, Position end, Context context, bool isExplicit = false)
+	public IValue Get(IValue key, Bounds bounds, Context context, bool isExplicit = false)
 	{
 		var value = _variables.FirstOrDefault(e => e.Key.Value?.Equals(key.Value) ?? false).Value;
 		if (value != null) return value;
 		
 		if (isExplicit || Scope.ParentScope == null)
-			return new Error($"Variable {key.Value} is not defined", start, end, context);
+			return new Error($"Variable {key.Value} is not defined", bounds, context);
 		
-		return Scope.ParentScope.VariableTable.Get(key, start, end, context, isExplicit);
+		return Scope.ParentScope.VariableTable.Get(key, bounds, context, isExplicit);
 	}
 	public void Set(IValue key, IValue value)
 	{

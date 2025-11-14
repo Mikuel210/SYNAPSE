@@ -1,9 +1,9 @@
 namespace Core;
 
-public abstract class Node(Position start, Position end) {
+public abstract class Node(Bounds bounds) : IBounds
+{
 
-	public Position StartPosition { get; } = start;
-	public Position EndPosition { get; } = end;
+	public Bounds Bounds { get; } = bounds;
 
 	public override string ToString() => $"({GetType().Name + (Represent() == "" ? "" : $": {Represent()}")})";
 	public virtual string Represent() => string.Empty;
@@ -16,7 +16,7 @@ public abstract class Node(Position start, Position end) {
 /// Makes a value from a literal as a token
 /// </summary>
 /// <param name="token"></param>
-public class LiteralNode(Token token) : Node(token.StartPosition, token.EndPosition) {
+public class LiteralNode(Token token) : Node(token.Bounds) {
 
 	public Token Token { get; } = token;
 
@@ -24,9 +24,9 @@ public class LiteralNode(Token token) : Node(token.StartPosition, token.EndPosit
 
 }
 
-public class NullNode(Position start, Position end) : Node(start, end);
+public class NullNode(Bounds bounds) : Node(bounds);
 
-public class ErrorNode(string message, Position start, Position end) : Node(start, end) {
+public class ErrorNode(string message, Bounds bounds) : Node(bounds) {
 
 	public string Message { get; } = message;
 
@@ -35,7 +35,8 @@ public class ErrorNode(string message, Position start, Position end) : Node(star
 }
 
 
-public class UnaryOperationNode(Token operationToken, Node baseNode) : Node(operationToken.StartPosition, baseNode.EndPosition) {
+public class UnaryOperationNode(Token operationToken, Node baseNode) 
+	: Node(new(operationToken.Bounds.Start, baseNode.Bounds.End)) {
 
 	public Token OperationToken { get; } = operationToken;
 	public Node BaseNode { get; } = baseNode;
@@ -45,7 +46,7 @@ public class UnaryOperationNode(Token operationToken, Node baseNode) : Node(oper
 }
 
 public class BinaryOperationNode(Token operationToken, Node leftNode, Node rightNode)
-	: Node(leftNode.StartPosition, rightNode.EndPosition) {
+	: Node(new(leftNode.Bounds.Start, rightNode.Bounds.End)) {
 
 	public Token OperationToken { get; } = operationToken;
 	public Node LeftNode { get; } = leftNode;
@@ -56,7 +57,7 @@ public class BinaryOperationNode(Token operationToken, Node leftNode, Node right
 }
 
 
-public class VariableNode(Node variableName) : Node(variableName.StartPosition, variableName.EndPosition)
+public class VariableNode(Node variableName) : Node(variableName.Bounds)
 {
 
 	public Node VariableName { get; } = variableName;
@@ -64,7 +65,7 @@ public class VariableNode(Node variableName) : Node(variableName.StartPosition, 
 
 }
 
-public class VariableAccessNode(VariableNode variableNode) : Node(variableNode.StartPosition, variableNode.EndPosition)
+public class VariableAccessNode(VariableNode variableNode) : Node(variableNode.Bounds)
 {
 
 	public VariableNode VariableNode { get; } = variableNode;
@@ -73,7 +74,7 @@ public class VariableAccessNode(VariableNode variableNode) : Node(variableNode.S
 }
 
 public class VariableAssignmentNode(VariableNode variableNode, Node valueNode)
-	: Node(variableNode.StartPosition, valueNode.EndPosition)
+	: Node(new(variableNode.Bounds.Start, valueNode.Bounds.End))
 {
 
 	public VariableNode VariableNode { get; } = variableNode;
