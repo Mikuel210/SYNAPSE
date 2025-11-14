@@ -10,23 +10,23 @@ public interface IValue {
 	IValue Clone();
 	
 	#region Operators
-	
-	IValue AddedTo(IValue value) => throw new NotImplementedException("Operation not implemented");
-	IValue SubtractedBy(IValue value) => throw new NotImplementedException("Operation not implemented");
-	IValue MultipliedBy(IValue value) => throw new NotImplementedException("Operation not implemented");
-	IValue DividedBy(IValue value) => throw new NotImplementedException("Operation not implemented");
-	IValue PoweredBy(IValue value) => throw new NotImplementedException("Operation not implemented");
-	IValue ReducedTo(IValue value) => throw new NotImplementedException("Operation not implemented");
-	
-	Number IsEquals(IValue value) => throw new NotImplementedException("Operation not implemented");
-	Number IsGreaterThan(IValue value) => throw new NotImplementedException("Operation not implemented");
-	Number IsGreaterThanEquals(IValue value) => throw new NotImplementedException("Operation not implemented");
-	Number IsLessThan(IValue value) => throw new NotImplementedException("Operation not implemented");
-	Number IsLessThanEquals(IValue value) => throw new NotImplementedException("Operation not implemented");
 
-	IValue And(IValue value) => throw new NotImplementedException("Operation not implemented");
-	IValue Or(IValue value) => throw new NotImplementedException("Operation not implemented");
-	IValue Not() => throw new NotImplementedException("Operation not implemented");
+	IValue AddedTo(IValue value) => new Error($"Unsupported operand: {GetType().Name} + {value.GetType().Name}", StartPosition, value.EndPosition, Context);
+	IValue SubtractedBy(IValue value) => new Error($"Unsupported operand: {GetType().Name} - {value.GetType().Name}", StartPosition, value.EndPosition, Context);
+	IValue MultipliedBy(IValue value) => new Error($"Unsupported operand: {GetType().Name} * {value.GetType().Name}", StartPosition, value.EndPosition, Context);
+	IValue DividedBy(IValue value) => new Error($"Unsupported operand: {GetType().Name} / {value.GetType().Name}", StartPosition, value.EndPosition, Context);
+	IValue PoweredBy(IValue value) => new Error($"Unsupported operand: {GetType().Name} ^ {value.GetType().Name}", StartPosition, value.EndPosition, Context);
+	IValue ReducedTo(IValue value) => new Error($"Unsupported operand: {GetType().Name} % {value.GetType().Name}", StartPosition, value.EndPosition, Context);
+	
+	IValue IsEquals(IValue value) => new Error($"Unsupported operand: {GetType().Name} == {value.GetType().Name}", StartPosition, value.EndPosition, Context);
+	IValue IsGreaterThan(IValue value) => new Error($"Unsupported operand: {GetType().Name} > {value.GetType().Name}", StartPosition, value.EndPosition, Context);
+	IValue IsGreaterThanEquals(IValue value) => new Error($"Unsupported operand: {GetType().Name} >= {value.GetType().Name}", StartPosition, value.EndPosition, Context);
+	IValue IsLessThan(IValue value) => new Error($"Unsupported operand: {GetType().Name} < {value.GetType().Name}", StartPosition, value.EndPosition, Context);
+	IValue IsLessThanEquals(IValue value) => new Error($"Unsupported operand: {GetType().Name} <= {value.GetType().Name}", StartPosition, value.EndPosition, Context);
+
+	IValue And(IValue value) => new Error($"Unsupported operand: {GetType().Name} and {value.GetType().Name}", StartPosition, value.EndPosition, Context);
+	IValue Or(IValue value) => new Error($"Unsupported operand: {GetType().Name} or {value.GetType().Name}", StartPosition, value.EndPosition, Context);
+	IValue Not() => new Error($"Unsupported operand: not {GetType().Name}", StartPosition, EndPosition, Context);
 
 	#endregion
 
@@ -53,40 +53,41 @@ public abstract class GenericValue<TSelf, TValue>(TValue value, Position start, 
 	
 	#region Operators
 	
-	public virtual IValue AddedTo(IValue value) => throw new NotImplementedException("Operation not implemented");
-	public virtual IValue SubtractedBy(IValue value) => throw new NotImplementedException("Operation not implemented");
-	public virtual IValue MultipliedBy(IValue value) => throw new NotImplementedException("Operation not implemented");
-	public virtual IValue DividedBy(IValue value) => throw new NotImplementedException("Operation not implemented");
-	public virtual IValue PoweredBy(IValue value) => throw new NotImplementedException("Operation not implemented");
-	public virtual IValue ReducedTo(IValue value) => throw new NotImplementedException("Operation not implemented");
-
-	public virtual Number IsEquals(IValue value) => throw new NotImplementedException("Operation not implemented");
-	public virtual Number IsGreaterThan(IValue value) => throw new NotImplementedException("Operation not implemented");
-	public Number IsGreaterThanEquals(IValue value)
+	public virtual IValue AddedTo(IValue value) => ((IValue)this).AddedTo(value);
+	public virtual IValue SubtractedBy(IValue value) => ((IValue)this).SubtractedBy(value);
+	public virtual IValue MultipliedBy(IValue value) => ((IValue)this).MultipliedBy(value);
+	public virtual IValue DividedBy(IValue value) => ((IValue)this).DividedBy(value);
+	public virtual IValue PoweredBy(IValue value) => ((IValue)this).PoweredBy(value);
+	public virtual IValue ReducedTo(IValue value) => ((IValue)this).ReducedTo(value);
+	
+	public virtual IValue IsEquals(IValue value) => ((IValue)this).IsEquals(value);
+	public virtual IValue IsGreaterThan(IValue value) => ((IValue)this).IsGreaterThan(value);
+	public IValue IsGreaterThanEquals(IValue value)
 	{
-		bool isEquals = IsEquals(value).Value != 0;
-		bool isGreaterThan = IsGreaterThan(value).Value != 0;
+		// TODO: This should check if it's a number, return error if it's not
+		bool isEquals = !IsEquals(value).Value?.Equals(0) ?? false;
+		bool isGreaterThan = !IsGreaterThan(value).Value?.Equals(0) ?? false;
 
-		return new(isEquals || isGreaterThan ? 1 : 0, StartPosition, EndPosition, Context);
+		return new Number(isEquals || isGreaterThan ? 1 : 0, StartPosition, EndPosition, Context);
 	}
-	public Number IsLessThan(IValue value)
+	public IValue IsLessThan(IValue value)
 	{
-		var isEquals = IsEquals(value);
-		var isGreaterThan = IsGreaterThan(value);
+		bool isEquals = !IsEquals(value).Value?.Equals(0) ?? false;
+		bool isGreaterThan = !IsGreaterThan(value).Value?.Equals(0) ?? false;
 
-		return new(isEquals.Value == 0 && isGreaterThan.Value == 0 ? 1 : 0, StartPosition, EndPosition, Context);
+		return new Number(!isEquals && !isGreaterThan ? 1 : 0, StartPosition, EndPosition, Context);
 	}
-	public Number IsLessThanEquals(IValue value)
+	public IValue IsLessThanEquals(IValue value)
 	{
-		bool isEquals = IsEquals(value).Value != 0;
-		bool isLessThan = IsLessThan(value).Value != 0;
+		bool isEquals = !IsEquals(value).Value?.Equals(0) ?? false;
+		bool isGreaterThan = !IsGreaterThan(value).Value?.Equals(0) ?? false;
 
-		return new(isEquals || isLessThan ? 1 : 0, StartPosition, EndPosition, Context);
+		return new Number(isEquals || !isGreaterThan ? 1 : 0, StartPosition, EndPosition, Context);
 	}
-
-	public virtual IValue And(IValue value) => throw new NotImplementedException("Operation not implemented");
-	public virtual IValue Or(IValue value) => throw new NotImplementedException("Operation not implemented");
-	public virtual IValue Not() => throw new NotImplementedException("Operation not implemented");
+	
+	public virtual IValue And(IValue value) => ((IValue)this).And(value);
+	public virtual IValue Or(IValue value) => ((IValue)this).Or(value);
+	public virtual IValue Not() => ((IValue)this).Not();
 	
 	#endregion
 

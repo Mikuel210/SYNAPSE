@@ -16,7 +16,7 @@ public class Parser(Lexer lexer) {
 					Advance();	
 			}
 			else if (Lexer.TokenQueue.Count > 0) {
-				node = new ErrorNode("Newline expected", CurrentToken.StartPosition, CurrentToken.EndPosition);
+				node = new ErrorNode(ErrorMessage.Expected(Token.EType.NewLine), CurrentToken.StartPosition, CurrentToken.EndPosition);
 			}
 			
 			return node;
@@ -135,10 +135,10 @@ public class Parser(Lexer lexer) {
 		var variable = Variable();
 
 		if (variable is not VariableNode variableNode)
-			return new ErrorNode($"Expected variable, got {variable}", variable.StartPosition, variable.EndPosition);
+			return new ErrorNode(ErrorMessage.Expected(nameof(Variable), variable.GetType().Name), variable.StartPosition, variable.EndPosition);
 
 		if (CurrentToken.Type != Token.EType.Equals)
-			return new ErrorNode($"Expected equals, got {CurrentToken.Type}", CurrentToken.StartPosition, CurrentToken.EndPosition);
+			return new ErrorNode(ErrorMessage.Expected(Token.EType.Equals, CurrentToken.Type), CurrentToken.StartPosition, CurrentToken.EndPosition);
 
 		Advance();
 
@@ -159,7 +159,7 @@ public class Parser(Lexer lexer) {
 		}
 
 		if (token.Type is Token.EType.Identifier) goto Identifier;
-		return new ErrorNode($"Expected variable, got {token.Type}", token.StartPosition, token.EndPosition);
+		return new ErrorNode(ErrorMessage.Expected(Token.EType.Variable, CurrentToken.Type), token.StartPosition, token.EndPosition);
 		
 		Identifier:
 			Advance();
@@ -215,19 +215,20 @@ public class Parser(Lexer lexer) {
 		if (token.Type == Token.EType.OpenParenthesis) {
 			if (CurrentToken.Type == Token.EType.CloseParenthesis) {
 				Advance();
-				return new ErrorNode("Expected expression", CurrentToken.StartPosition, CurrentToken.EndPosition); // TODO: ErrorMessage.Expected("expression", CurrentToken) -> Expected expression, got invalid
+
+				return new ErrorNode(ErrorMessage.Expected(nameof(Expression)), CurrentToken.StartPosition, CurrentToken.EndPosition);
 			}
 			
 			var expression = Expression();
 
 			if (CurrentToken.Type != Token.EType.CloseParenthesis)
-				return new ErrorNode("Expected ')'", CurrentToken.StartPosition, CurrentToken.EndPosition);
+				return new ErrorNode(ErrorMessage.Expected(Token.EType.CloseParenthesis), CurrentToken.StartPosition, CurrentToken.EndPosition);
 
 			Advance();
 			return expression;
 		}
 		
-		return new ErrorNode($"Expected number or text, got {token.Type}", token.StartPosition, token.EndPosition);
+		return new ErrorNode(ErrorMessage.Expected([Token.EType.Number, Token.EType.Text, Token.EType.OpenParenthesis]), token.StartPosition, token.EndPosition);
 	}
 
 	#endregion
