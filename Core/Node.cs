@@ -84,10 +84,19 @@ public class VariableAssignmentNode(VariableNode variableNode, Node valueNode)
 
 }
 
-public class ExecuteNode(Node baseNode)
+public class ArgumentsNode(List<Node> arguments, Bounds bounds) : Node(bounds)
+{
+
+	public List<Node> Arguments { get; } = arguments;
+
+}
+
+public class ExecuteNode(Node baseNode, ArgumentsNode argumentsNode)
+	: Node(new(baseNode.Bounds.Start, argumentsNode.Bounds.End))
 {
 
 	public Node BaseNode { get; } = baseNode;
+	public ArgumentsNode ArgumentsNode { get; } = argumentsNode;
 
 }
 

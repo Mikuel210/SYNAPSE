@@ -13,6 +13,7 @@ public struct Token(Token.EType type, object? value, Bounds bounds) : IBounds {
 		
 		OpenParenthesis,
 		CloseParenthesis,
+		Comma,
 		
 		Number,
 		Add,
@@ -108,6 +109,7 @@ public class Lexer {
 			'^' => MakeToken(Token.EType.Power, character),
 			'%' => MakeToken(Token.EType.Modulo, character),
 			'$' => MakeToken(Token.EType.Variable, character),
+			',' => MakeToken(Token.EType.Comma, character),
 			_   => MakeToken(Token.EType.Invalid, CurrentCharacter)
 		};
 

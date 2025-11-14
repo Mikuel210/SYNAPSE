@@ -8,6 +8,10 @@ public class Parser(Lexer lexer) {
 	public Token CurrentToken => Lexer.TokenQueue.ElementAtOrDefault(0);
 
 	public Node ParseStatement() {
+		#if DEBUG
+			Console.WriteLine(string.Join(", ", Lexer.TokenQueue));
+		#endif
+		
 		if (Lexer.TokenQueue.Count > 0) {
 			Node node = Expression();
 
@@ -199,7 +203,19 @@ public class Parser(Lexer lexer) {
 		return atom;
 	}
 
-	private Node Atom() => BaseAtom();
+	private Node Atom()
+	{
+		var currentNode = BaseAtom();
+
+		while (Attempt(Postfix, out Node? postfix)) {
+			currentNode = postfix switch {
+				ArgumentsNode argumentsNode => new ExecuteNode(currentNode, argumentsNode), 
+				_ => throw new NotImplementedException()
+			};
+		}
+
+		return currentNode;
+	}
 
 	private Node BaseAtom() {
 		Token token = CurrentToken;
@@ -229,6 +245,31 @@ public class Parser(Lexer lexer) {
 		}
 		
 		return ErrorFactory.ExpectedNode(token, [Token.EType.Number, Token.EType.Text, Token.EType.OpenParenthesis], token.Type);
+	}
+
+	private Node Postfix()
+	{
+		var startPosition = CurrentToken.Bounds.Start.Clone();
+		
+		if (CurrentToken.Type != Token.EType.OpenParenthesis)
+			return ErrorFactory.ExpectedNode(CurrentToken, Token.EType.OpenParenthesis, CurrentToken.Type);	
+		
+		Advance();
+		List<Node> arguments = [];
+
+		if (!Attempt(Expression, out var expression)) goto End;
+		arguments.Add(expression);
+
+		while (CurrentToken.Type == Token.EType.Comma) {
+			Advance();
+			
+			if (!Attempt(Expression, out expression)) goto End;
+			arguments.Add(expression);
+		}
+
+		End:
+		Advance();
+		return new ArgumentsNode(arguments, new(startPosition, CurrentToken.Bounds.End));
 	}
 
 	#endregion

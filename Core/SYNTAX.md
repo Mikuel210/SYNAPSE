@@ -37,7 +37,7 @@ GTE = GREATER THAN OR EQUALS
 - **BaseAtom**: Number|Text|Variable
     OPEN_PARENTHESIS Expression CLOSE_PARENTHESIS
 
--   **Postfix** : (OPEN_PARENTHESIS (Expression (COMMA Expression)*)? CLOSE_PARENTHESIS)?
+- **Postfix**: OPEN_PARENTHESIS (Expression (COMMA Expression)*)? CLOSE_PARENTHESIS
 
 
 
