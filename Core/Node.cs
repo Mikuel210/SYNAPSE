@@ -84,4 +84,11 @@ public class VariableAssignmentNode(VariableNode variableNode, Node valueNode)
 
 }
 
+public class ExecuteNode(Node baseNode)
+{
+
+	public Node BaseNode { get; } = baseNode;
+
+}
+
 #endregion

@@ -32,10 +32,13 @@ GTE = GREATER THAN OR EQUALS
 - **Factor**: (ADD|SUBTRACT)? Factor
     Atom
  
-- **Atom**: BaseAtom
+- **Atom**: BaseAtom (Postfix)*
  
 - **BaseAtom**: Number|Text|Variable
     OPEN_PARENTHESIS Expression CLOSE_PARENTHESIS
+
+-   **Postfix** : (OPEN_PARENTHESIS (Expression (COMMA Expression)*)? CLOSE_PARENTHESIS)?
+
 
 
 
@@ -46,9 +49,9 @@ GTE = GREATER THAN OR EQUALS
 -   **Expression**: IfExpression
     : WhileExpression
     : (Variable|Index) EQUALS Expression
-    : ComparaisonExpression ((KEYWORD:and|or) ComparaisonExpression)*
+    : ComparisonExpression ((KEYWORD:and|or) ComparisonExpression)*
 
--   **ComparaisonExpression**: not ComparaisonExpression
+-   **ComparisonExpression**: not ComparisonExpression
     : ArithmeticExpression ((EE|LT|GT|LTE|GTE) ArithmeticExpression)*
 
 -   **ArithmeticExpression**: Term ((ADD|SUBTRACT) Term)*

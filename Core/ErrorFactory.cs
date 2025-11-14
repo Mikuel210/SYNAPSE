@@ -3,7 +3,7 @@ namespace Core;
 public static class ErrorFactory
 {
 
-	private static string Represent(object @object)
+	public static string Represent(object @object)
 	{
 		if (@object is Error error) return $"Error ({error.Value})";
 		if (@object is IValue value) return value.GetType().Name;
@@ -22,7 +22,7 @@ public static class ErrorFactory
 			message = string.Join(", ", expectedWithoutLast.Select(Represent).ToArray()) 
 							 + ", or " + expected.LastOrDefault();	
 		}
-		else message = expected[0].ToString()!;
+		else message = Represent(expected[0]);
 
 		message = $"Expected {message}" + (got == null ? "" : $", got {got}"); 
 		return new(message, bounds.Bounds);
@@ -36,7 +36,7 @@ public static class ErrorFactory
 		var message = "Unsupported operator: ";
 		if (right == null) message += $"{operatorString} ";
 		
-		message += left.GetType().Name;
+		message += Represent(left);
 		if (right != null) message += $" {operatorString} {Represent(right)}";
 
 		return new(message, new(left.Bounds.Start, right == null ? left.Bounds.End : right.Bounds.End), left.Context);
