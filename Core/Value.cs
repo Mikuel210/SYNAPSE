@@ -97,13 +97,23 @@ public class Number(double value, Bounds bounds, Context context) : GenericValue
 	public static Number FromToken(Token token, Context context) => 
 		new((double)token.Value!, token.Bounds, context);
 
+	#region Operators
+	
 	public override IValue AddedTo(IValue value) {
 		switch (value) {
-			case Number number:
+			case Number number: {
 				var clone = Clone();
 				clone.Value += number.Value;
 
+				return clone;	
+			}
+
+			case Text text: {
+				var clone = text.Clone();
+				clone.Value = Value + text.Value;
+
 				return clone;
+			}
 		}
 		
 		return ErrorFactory.UnsupportedOperator("+", this, value);
@@ -126,6 +136,9 @@ public class Number(double value, Bounds bounds, Context context) : GenericValue
 				clone.Value *= number.Value;
 
 				return clone;
+			
+			case Text text:
+				return text.MultipliedBy(this);
 		}
 		
 		return ErrorFactory.UnsupportedOperator("*", this, value);
@@ -221,12 +234,74 @@ public class Number(double value, Bounds bounds, Context context) : GenericValue
 		return clone;
 	}
 
+	#endregion
+	
 }
 
 public class Text(string value, Bounds bounds, Context context) : GenericValue<Text, string>(value, bounds, context) {
 
 	public static Text FromToken(Token token, Context context) => 
 		new((string)token.Value!, token.Bounds, context);
+	
+	public override IValue AddedTo(IValue value) {
+		switch (value) {
+			case Number number: {
+				var clone = Clone();
+				clone.Value += number.Value;
+
+				return clone;	
+			}
+
+			case Text text: {
+				var clone = Clone();
+				clone.Value += text.Value;
+
+				return clone;
+			}
+		}
+		
+		return ErrorFactory.UnsupportedOperator("+", this, value);
+	}
+	public override IValue MultipliedBy(IValue value) {
+		switch (value) {
+			case Number number:
+				var clone = Clone();
+
+				if (!int.TryParse(number.Value.ToString(), out int multiplier))
+					return ErrorFactory.InvalidOperation("Number must be an integer",
+						new(Bounds.Start, value.Bounds.End), Context);
+
+				clone.Value = string.Concat(Enumerable.Repeat(Value, multiplier));
+				return clone;
+			
+			case Text text:
+				return text.MultipliedBy(this);
+		}
+		
+		return ErrorFactory.UnsupportedOperator("*", this, value);
+	}
+	
+	public override IValue IsEquals(IValue value)
+	{
+		switch (value) {
+			case Text text:
+				var result = Value == text.Value;
+				return new Number(result ? 1 : 0, new(Bounds.Start, value.Bounds.End), Context);
+		}
+		
+		return ErrorFactory.UnsupportedOperator("==", this, value);
+	}
+	public override IValue IsGreaterThan(IValue value)
+	{
+		switch (value) {
+			case Text text:
+				var result = Value.Length > text.Value.Length;
+				return new Number(result ? 1 : 0, new(Bounds.Start, value.Bounds.End), Context);
+		}
+		
+		return ErrorFactory.UnsupportedOperator(">", this, value);
+	}
+
 	
 }
 
