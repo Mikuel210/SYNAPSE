@@ -9,10 +9,7 @@ public static class Interpreter {
 		
 		while (parser.Lexer.TokenQueue.Count > 0) {
 			var node = parser.ParseStatement();
-			
-			#if DEBUG
-				Console.WriteLine(node);		
-			#endif
+			// BUG: Console.WriteLine(node);
 			
 			output.Add(Visit(node, context));
 		}
@@ -121,6 +118,14 @@ public static class Interpreter {
 		context.Scope.VariableTable.Set(variable.variableName, value);
 		
 		return value;
+	}
+
+	private static IValue VisitExecuteNode(ExecuteNode node, Context context)
+	{
+		var baseValue = Visit(node.BaseNode, context);
+		var arguments = node.ArgumentsNode.Arguments.Select(e => Visit(e, context)).ToList();
+		
+		return baseValue.Execute(arguments);
 	}
 
 	#endregion

@@ -8,9 +8,7 @@ public class Parser(Lexer lexer) {
 	public Token CurrentToken => Lexer.TokenQueue.ElementAtOrDefault(0);
 
 	public Node ParseStatement() {
-		#if DEBUG
-			Console.WriteLine(string.Join(", ", Lexer.TokenQueue));
-		#endif
+		// BUG: Console.WriteLine(string.Join(", ", Lexer.TokenQueue));
 		
 		if (Lexer.TokenQueue.Count > 0) {
 			Node node = Expression();

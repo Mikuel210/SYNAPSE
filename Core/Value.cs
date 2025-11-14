@@ -28,7 +28,7 @@ public interface IValue : IBounds {
 
 	#endregion
 	
-	IValue Execute() => ErrorFactory.InvalidOperation($"{ErrorFactory.Represent(this)} is not executable", Bounds, Context);
+	IValue Execute(List<IValue> arguments) => ErrorFactory.InvalidOperation($"{ErrorFactory.Represent(this)} is not executable", Bounds, Context);
 
 }
 
@@ -90,7 +90,7 @@ public abstract class GenericValue<TSelf, TValue>(TValue value, Bounds bounds, C
 	
 	#endregion
 
-	public virtual IValue Execute() => ErrorFactory.InvalidOperation($"{ErrorFactory.Represent(this)} is not executable", Bounds, Context);
+	public virtual IValue Execute(List<IValue> arguments) => ErrorFactory.InvalidOperation($"{ErrorFactory.Represent(this)} is not executable", Bounds, Context);
 	
 }
 
@@ -306,10 +306,15 @@ public class Text(string value, Bounds bounds, Context context) : GenericValue<T
 		return ErrorFactory.UnsupportedOperator(">", this, value);
 	}
 
-	public override IValue Execute()
+	public override IValue Execute(List<IValue> arguments)
 	{
-		Console.WriteLine("I'm being executed");
-		return new Null(Bounds, Context);
+		var scope = new Scope(nameof(Text), Value, Context.Scope.ParentScope);
+		var lexer = new Lexer(scope);
+		var parser = new Parser(lexer);
+		var context = new Context(scope, Context, Bounds.Start);
+
+		var output = Interpreter.Interpret(parser, context);
+		return output.LastOrDefault() ?? new Null(Bounds, Context);
 	}
 
 }
