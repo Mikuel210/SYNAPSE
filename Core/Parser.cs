@@ -228,7 +228,7 @@ public class Parser(Lexer lexer) {
 			return expression;
 		}
 		
-		return ErrorFactory.ExpectedNode(token, [Token.EType.Number, Token.EType.Text, Token.EType.OpenParenthesis]);
+		return ErrorFactory.ExpectedNode(token, [Token.EType.Number, Token.EType.Text, Token.EType.OpenParenthesis], token.Type);
 	}
 
 	#endregion

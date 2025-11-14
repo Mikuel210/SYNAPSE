@@ -95,7 +95,7 @@ public abstract class GenericValue<TSelf, TValue>(TValue value, Bounds bounds, C
 public class Number(double value, Bounds bounds, Context context) : GenericValue<Number, double>(value, bounds, context) {
 
 	public static Number FromToken(Token token, Context context) => 
-		new((float)token.Value!, token.Bounds, context);
+		new((double)token.Value!, token.Bounds, context);
 
 	public override IValue AddedTo(IValue value) {
 		switch (value) {

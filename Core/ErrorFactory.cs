@@ -5,11 +5,16 @@ public static class ErrorFactory
 
 	public static ErrorNode ExpectedNode(IBounds bounds, List<object> expected, object? got = null)
 	{
-		var expectedWithoutLast = new List<object>(expected);
-		expectedWithoutLast.RemoveAt(expected.Count - 1);
+		string message;
+
+		if (expected.Count > 1) {
+			var expectedWithoutLast = new List<object>(expected);
+			expectedWithoutLast.RemoveAt(expected.Count - 1);
 		
-		string message = string.Join(", ", expectedWithoutLast.Select(e => e.ToString()).ToArray()) 
-							 + ", or " + expected.LastOrDefault();
+			message = string.Join(", ", expectedWithoutLast.Select(e => e.ToString()).ToArray()) 
+							 + ", or " + expected.LastOrDefault();	
+		}
+		else message = expected[0].ToString()!;
 
 		message = $"Expected {message}" + (got == null ? "" : $", got {got}") + "."; 
 		

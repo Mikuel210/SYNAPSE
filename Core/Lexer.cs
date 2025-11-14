@@ -1,4 +1,6 @@
-﻿namespace Core;
+﻿using System.Globalization;
+
+namespace Core;
 
 public struct Token(Token.EType type, object? value, Bounds bounds) : IBounds {
 
@@ -68,6 +70,8 @@ public class Lexer {
 		
 		Tokenize();
 		Scope.OnTextChanged += Retokenize;
+		
+		CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
 	}
 
 	
@@ -86,7 +90,7 @@ public class Lexer {
 
 		// Make token
 		if (";\n".Contains(character)) return MakeToken(Token.EType.NewLine);
-		if (char.IsNumber(character)) return MakeNumber();
+		if (char.IsNumber(character) || character == '.') return MakeNumber();
 		if (char.IsLetter(character) || character == '_') return MakeIdentifier();
 
 		if (character == '=') return MakeEquals();
@@ -177,7 +181,9 @@ public class Lexer {
 		var hasDot = false;
 		var startPosition = _currentPosition.Clone();
 
-		while (CurrentCharacter != '\0' && char.IsNumber(CurrentCharacter)) {
+		if (CurrentCharacter == '.') numberString = "0";
+
+		while (CurrentCharacter != '\0' && (char.IsNumber(CurrentCharacter) || CurrentCharacter == '.')) {
 			char character = CurrentCharacter;
 
 			if (character == '.') {
@@ -188,8 +194,8 @@ public class Lexer {
 			numberString += CurrentCharacter;
 			Advance();
 		}
-
-		float number = float.Parse(numberString);
+		
+		double number = double.Parse(numberString);
 		return new(Token.EType.Number, number, new(startPosition, _currentPosition));
 	}
 
