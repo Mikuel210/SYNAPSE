@@ -84,26 +84,48 @@ public class VariableAssignmentNode(VariableNode variableNode, Node valueNode)
 
 }
 
-public class ListNode(List<Node> elements, Bounds bounds) : Node(bounds)
+public class EnumerationNode(List<Node> elements, Bounds bounds) : Node(bounds)
 {
 
 	public List<Node> Elements { get; } = elements;
 
 }
 
-public class ArgumentsNode(ListNode listNode) : Node(listNode.Bounds)
+public class ListNode(EnumerationNode enumerationNode) : Node(enumerationNode.Bounds)
 {
 
-	public ListNode ListNode { get; } = listNode;
+	public EnumerationNode EnumerationNode { get; } = enumerationNode;
 
 }
 
-public class ExecuteNode(Node baseNode, ArgumentsNode argumentsNode)
+public class ArgumentsNode(EnumerationNode enumerationNode) : Node(enumerationNode.Bounds)
+{
+
+	public EnumerationNode EnumerationNode { get; } = enumerationNode;
+
+}
+
+public class CallNode(Node baseNode, ArgumentsNode argumentsNode)
 	: Node(new(baseNode.Bounds.Start, argumentsNode.Bounds.End))
 {
 
 	public Node BaseNode { get; } = baseNode;
 	public ArgumentsNode ArgumentsNode { get; } = argumentsNode;
+
+}
+
+public class IndexNode(Node node) : Node(node.Bounds)
+{
+
+	public Node Node { get; } = node;
+
+}
+
+public class IndexingNode(Node baseNode, IndexNode indexNode) : Node(new(baseNode.Bounds.Start, indexNode.Bounds.End))
+{ 
+
+	public Node BaseNode { get; } = baseNode;
+	public IndexNode ArgumentsNode { get; } = indexNode;
 
 }
 

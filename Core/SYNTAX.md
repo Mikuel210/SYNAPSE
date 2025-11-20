@@ -37,11 +37,14 @@ GTE = GREATER THAN OR EQUALS
 - **BaseAtom**: NUMBER|TEXT|Variable|ListExpression
     OPEN_PARENTHESIS Expression CLOSE_PARENTHESIS
 
-- **ListExpression**: OPEN_BRACKETS List CLOSE_BRACKETS
+- **ListExpression**: OPEN_BRACKETS Enumeration CLOSE_BRACKETS
 
-- **Postfix**: OPEN_PARENTHESIS List CLOSE_PARENTHESIS
+- **ArgumentsExpression**: OPEN_PARENTHESIS Enumeration CLOSE_PARENTHESIS
 
-- **List**: (Expression (COMMA Expression)*)?
+- **Postfix**: OPEN_BRACKETS Expression CLOSE_BRACKETS 
+    ArgumentsExpression
+
+- **Enumeration**: (Expression (COMMA Expression)*)?
 
 
 ## RUNTIME Syntax

@@ -207,7 +207,9 @@ public class Parser(Lexer lexer) {
 
 		while (Attempt(Postfix, out Node? postfix)) {
 			currentNode = postfix switch {
-				ArgumentsNode argumentsNode => new ExecuteNode(currentNode, argumentsNode), 
+				ArgumentsNode argumentsNode => new CallNode(currentNode, argumentsNode),
+				IndexNode indexNode => new IndexingNode(currentNode, indexNode), 
+				
 				_ => throw new NotImplementedException()
 			};
 		}
@@ -221,7 +223,7 @@ public class Parser(Lexer lexer) {
 		if (Attempt<VariableNode>(Variable, out var variable))
 			return new VariableAccessNode(variable);
 
-		if (Attempt<ListNode>(ListExpression, out var list)) return list;
+		if (Attempt<EnumerationNode>(ListExpression, out var list)) return list;
 		Advance();
 		
 		if (token.Type is Token.EType.Number or Token.EType.Text)
@@ -255,19 +257,19 @@ public class Parser(Lexer lexer) {
 		
 		Advance();
 
-		if (!Attempt<ListNode>(List, out var list)) 
-			return ErrorFactory.ExpectedNode(CurrentToken, nameof(List));
+		if (!Attempt<EnumerationNode>(Enumeration, out var enumeration)) 
+			return ErrorFactory.ExpectedNode(CurrentToken, nameof(Enumeration));
 		
 		if (CurrentToken.Type != Token.EType.CloseBrackets)
 			return ErrorFactory.ExpectedNode(CurrentToken, Token.EType.CloseBrackets, CurrentToken.Type);
 		
 		Advance();
 		
-		list.Bounds = new(startPosition, CurrentToken.Bounds.End);
-		return list;
+		enumeration.Bounds = new(startPosition, CurrentToken.Bounds.End);
+		return new ListNode(enumeration);
 	}
 
-	private Node Postfix()
+	private Node ArgumentsExpression()
 	{
 		var startPosition = CurrentToken.Bounds.Start.Clone();
 		
@@ -276,19 +278,38 @@ public class Parser(Lexer lexer) {
 		
 		Advance();
 
-		if (!Attempt<ListNode>(List, out var list)) 
-			return ErrorFactory.ExpectedNode(CurrentToken, nameof(List));
+		if (!Attempt<EnumerationNode>(Enumeration, out var enumeration)) 
+			return ErrorFactory.ExpectedNode(CurrentToken, nameof(Enumeration));
 		
 		if (CurrentToken.Type != Token.EType.CloseParenthesis)
 			return ErrorFactory.ExpectedNode(CurrentToken, Token.EType.CloseParenthesis, CurrentToken.Type);
 		
 		Advance();
 		
-		list.Bounds = new(startPosition, CurrentToken.Bounds.End);
-		return new ArgumentsNode(list);
+		enumeration.Bounds = new(startPosition, CurrentToken.Bounds.End);
+		return new ArgumentsNode(enumeration);
 	}
 
-	private Node List()
+	private Node Postfix()
+	{
+		if (Attempt(ArgumentsExpression, out var call)) return call;
+		
+		if (CurrentToken.Type != Token.EType.OpenBrackets)
+			return ErrorFactory.ExpectedNode(CurrentToken, [Token.EType.OpenParenthesis, Token.EType.OpenBrackets], CurrentToken.Type);
+		
+		Advance();
+
+		if (!Attempt(Expression, out var expression)) 
+			return ErrorFactory.ExpectedNode(CurrentToken, nameof(Expression));
+		
+		if (CurrentToken.Type != Token.EType.CloseBrackets)
+			return ErrorFactory.ExpectedNode(CurrentToken, Token.EType.CloseBrackets, CurrentToken.Type);
+		
+		Advance();
+		return new IndexNode(expression);
+	}
+
+	private Node Enumeration()
 	{
 		var startPosition = CurrentToken.Bounds.Start.Clone();
 		List<Node> arguments = [];
@@ -304,7 +325,7 @@ public class Parser(Lexer lexer) {
 		}
 
 		End:
-		return new ListNode(arguments, new(startPosition, CurrentToken.Bounds.End));
+		return new EnumerationNode(arguments, new(startPosition, CurrentToken.Bounds.End));
 	}
 
 	#endregion
