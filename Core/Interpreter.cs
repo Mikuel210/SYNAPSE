@@ -122,13 +122,18 @@ public static class Interpreter {
 
 	private static IValue VisitListNode(ListNode node, Context context)
 	{
+		List<IValue> elements = [];
 		
+		foreach (var elementNode in node.Elements) 
+			elements.Add(Visit(elementNode, context));
+
+		return new List(elements, node.Bounds, context);
 	}
 
 	private static IValue VisitExecuteNode(ExecuteNode node, Context context)
 	{
 		var baseValue = Visit(node.BaseNode, context);
-		var arguments = node.ArgumentsNode.ListNode.Elements.Select(e => Visit(e, context)).ToList();
+		var arguments = (List)Visit(node.ArgumentsNode.ListNode, context);
 		
 		return baseValue.Execute(arguments);
 	}

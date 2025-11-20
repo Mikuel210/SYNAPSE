@@ -28,7 +28,7 @@ public interface IValue : IBounds {
 
 	#endregion
 	
-	IValue Execute(List<IValue> arguments) => ErrorFactory.InvalidOperation($"{ErrorFactory.Represent(this)} is not executable", Bounds, Context);
+	IValue Execute(List arguments) => ErrorFactory.InvalidOperation($"{ErrorFactory.Represent(this)} is not executable", Bounds, Context);
 
 }
 
@@ -90,7 +90,7 @@ public abstract class GenericValue<TSelf, TValue>(TValue value, Bounds bounds, C
 	
 	#endregion
 
-	public virtual IValue Execute(List<IValue> arguments) => ErrorFactory.InvalidOperation($"{ErrorFactory.Represent(this)} is not executable", Bounds, Context);
+	public virtual IValue Execute(List arguments) => ErrorFactory.InvalidOperation($"{ErrorFactory.Represent(this)} is not executable", Bounds, Context);
 	
 }
 
@@ -306,18 +306,23 @@ public class Text(string value, Bounds bounds, Context context) : GenericValue<T
 		return ErrorFactory.UnsupportedOperator(">", this, value);
 	}
 
-	public override IValue Execute(List<IValue> arguments)
+	public override IValue Execute(List arguments)
 	{
 		var scope = new Scope(nameof(Text), Value, Context.Scope.ParentScope);
 		var lexer = new Lexer(scope);
 		var parser = new Parser(lexer);
 		var context = new Context(scope, Context, Bounds.Start);
 
+		scope.VariableTable.Set(new Text("arguments", new(), context), arguments);
+		
 		var output = Interpreter.Interpret(parser, context);
 		return output.LastOrDefault() ?? new Null(Bounds, Context);
 	}
 
 }
+
+public class List(List<IValue> value, Bounds bounds, Context context)
+	: GenericValue<List, List<IValue>>(value, bounds, context);
 
 public class Null(Bounds bounds, Context context) : IValue {
 	

@@ -16,7 +16,7 @@ class Program
 
 			var context = new Context(_scope);
 			var output = Interpreter.Interpret(_parser, context);
-			output.ForEach(e => Console.WriteLine(e.Value));	
+			output.ForEach(Console.WriteLine);	
 		}
 	}
 
