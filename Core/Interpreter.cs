@@ -120,10 +120,15 @@ public static class Interpreter {
 		return value;
 	}
 
+	private static IValue VisitListNode(ListNode node, Context context)
+	{
+		
+	}
+
 	private static IValue VisitExecuteNode(ExecuteNode node, Context context)
 	{
 		var baseValue = Visit(node.BaseNode, context);
-		var arguments = node.ArgumentsNode.Arguments.Select(e => Visit(e, context)).ToList();
+		var arguments = node.ArgumentsNode.ListNode.Elements.Select(e => Visit(e, context)).ToList();
 		
 		return baseValue.Execute(arguments);
 	}

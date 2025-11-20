@@ -3,7 +3,7 @@ namespace Core;
 public abstract class Node(Bounds bounds) : IBounds
 {
 
-	public Bounds Bounds { get; } = bounds;
+	public Bounds Bounds { get; set; } = bounds;
 
 	public override string ToString() => $"({GetType().Name + (Represent() == "" ? "" : $": {Represent()}")})";
 	public virtual string Represent() => string.Empty;
@@ -84,10 +84,17 @@ public class VariableAssignmentNode(VariableNode variableNode, Node valueNode)
 
 }
 
-public class ArgumentsNode(List<Node> arguments, Bounds bounds) : Node(bounds)
+public class ListNode(List<Node> elements, Bounds bounds) : Node(bounds)
 {
 
-	public List<Node> Arguments { get; } = arguments;
+	public List<Node> Elements { get; } = elements;
+
+}
+
+public class ArgumentsNode(ListNode listNode) : Node(listNode.Bounds)
+{
+
+	public ListNode ListNode { get; } = listNode;
 
 }
 

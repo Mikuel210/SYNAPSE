@@ -9,7 +9,7 @@ class Program
 	private static readonly Lexer _lexer = new(_scope);
 	private static readonly Parser _parser = new(_lexer);
 
-	static void Main(string[] args) {
+	private static void Main() {
 		while (true) {
 			Console.Write("RUNTIME > ");
 			_scope.AppendText(Console.ReadLine()!);

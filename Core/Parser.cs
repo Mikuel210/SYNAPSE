@@ -5,7 +5,7 @@ namespace Core;
 public class Parser(Lexer lexer) {
 
 	public Lexer Lexer { get; } = lexer;
-	public Token CurrentToken => Lexer.TokenQueue.ElementAtOrDefault(0);
+	private Token CurrentToken => Lexer.TokenQueue.ElementAtOrDefault(0);
 
 	public Node ParseStatement() {
 		// BUG: Console.WriteLine(string.Join(", ", Lexer.TokenQueue));
@@ -245,6 +245,27 @@ public class Parser(Lexer lexer) {
 		return ErrorFactory.ExpectedNode(token, [Token.EType.Number, Token.EType.Text, Token.EType.OpenParenthesis], token.Type);
 	}
 
+	private Node ListExpression()
+	{
+		var startPosition = CurrentToken.Bounds.Start.Clone();
+		
+		if (CurrentToken.Type != Token.EType.OpenBrackets)
+			return ErrorFactory.ExpectedNode(CurrentToken, Token.EType.OpenBrackets, CurrentToken.Type);
+		
+		Advance();
+
+		if (!Attempt<ListNode>(List, out var list)) 
+			return ErrorFactory.ExpectedNode(CurrentToken, nameof(List));
+		
+		if (CurrentToken.Type != Token.EType.CloseBrackets)
+			return ErrorFactory.ExpectedNode(CurrentToken, Token.EType.CloseBrackets, CurrentToken.Type);
+		
+		Advance();
+		
+		list.Bounds = new(startPosition, CurrentToken.Bounds.End);
+		return list;
+	}
+
 	private Node Postfix()
 	{
 		var startPosition = CurrentToken.Bounds.Start.Clone();
@@ -253,6 +274,22 @@ public class Parser(Lexer lexer) {
 			return ErrorFactory.ExpectedNode(CurrentToken, Token.EType.OpenParenthesis, CurrentToken.Type);	
 		
 		Advance();
+
+		if (!Attempt<ListNode>(List, out var list)) 
+			return ErrorFactory.ExpectedNode(CurrentToken, nameof(List));
+		
+		if (CurrentToken.Type != Token.EType.CloseParenthesis)
+			return ErrorFactory.ExpectedNode(CurrentToken, Token.EType.CloseParenthesis, CurrentToken.Type);
+		
+		Advance();
+		
+		list.Bounds = new(startPosition, CurrentToken.Bounds.End);
+		return new ArgumentsNode(list);
+	}
+
+	private Node List()
+	{
+		var startPosition = CurrentToken.Bounds.Start.Clone();
 		List<Node> arguments = [];
 
 		if (!Attempt(Expression, out var expression)) goto End;
@@ -266,8 +303,7 @@ public class Parser(Lexer lexer) {
 		}
 
 		End:
-		Advance();
-		return new ArgumentsNode(arguments, new(startPosition, CurrentToken.Bounds.End));
+		return new ListNode(arguments, new(startPosition, CurrentToken.Bounds.End));
 	}
 
 	#endregion

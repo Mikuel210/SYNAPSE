@@ -13,9 +13,13 @@ public struct Token(Token.EType type, object? value, Bounds bounds) : IBounds {
 		
 		OpenParenthesis,
 		CloseParenthesis,
+		OpenBrackets,
+		CloseBrackets,
 		Comma,
 		
 		Number,
+		Text,
+		
 		Add,
 		Subtract,
 		Multiply,
@@ -32,8 +36,6 @@ public struct Token(Token.EType type, object? value, Bounds bounds) : IBounds {
 		GreaterThan,
 		LessThanEquals,
 		GreaterThanEquals,
-		
-		Text
 
 	}
 
@@ -102,6 +104,8 @@ public class Lexer {
 		return character switch {
 			'(' => MakeToken(Token.EType.OpenParenthesis, character),
 			')' => MakeToken(Token.EType.CloseParenthesis, character),
+			'[' => MakeToken(Token.EType.OpenBrackets, character),
+			']' => MakeToken(Token.EType.CloseBrackets, character),
 			'+' => MakeToken(Token.EType.Add, character),
 			'-' => MakeToken(Token.EType.Subtract, character),
 			'*' => MakeToken(Token.EType.Multiply, character),
