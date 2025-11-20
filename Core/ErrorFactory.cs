@@ -42,6 +42,12 @@ public static class ErrorFactory
 		return new(message, new(left.Bounds.Start, right == null ? left.Bounds.End : right.Bounds.End), left.Context);
 	}
 
+	public static Error UnsupportedIndex(IValue left, IValue right)
+	{
+		var message = $"Unsupported operator: {Represent(left)}[{Represent(right)}]";
+		return new(message, new(left.Bounds.Start, right.Bounds.End), left.Context);
+	}
+
 	public static Error InvalidOperation(string operation, Bounds bounds, Context context)
 		=> new($"Invalid operation: {operation}", bounds, context);
 	

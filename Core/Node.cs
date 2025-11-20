@@ -125,7 +125,7 @@ public class IndexingNode(Node baseNode, IndexNode indexNode) : Node(new(baseNod
 { 
 
 	public Node BaseNode { get; } = baseNode;
-	public IndexNode ArgumentsNode { get; } = indexNode;
+	public IndexNode IndexNode { get; } = indexNode;
 
 }
 

@@ -30,6 +30,8 @@ public interface IValue : IBounds {
 	
 	IValue Call(List arguments) => ErrorFactory.InvalidOperation($"{ErrorFactory.Represent(this)} is not executable", Bounds, Context);
 	
+	IValue Index(IValue index) => ErrorFactory.InvalidOperation($"{ErrorFactory.Represent(this)} is not indexable", Bounds, Context);
+	
 }
 
 public abstract class GenericValue<TSelf, TValue>(TValue value, Bounds bounds, Context context) : IValue where TSelf : IValue{
@@ -93,6 +95,8 @@ public abstract class GenericValue<TSelf, TValue>(TValue value, Bounds bounds, C
 	#endregion
 
 	public virtual IValue Call(List arguments) => ErrorFactory.InvalidOperation($"{ErrorFactory.Represent(this)} is not executable", Bounds, Context);
+	
+	public virtual IValue Index(IValue index) => ErrorFactory.InvalidOperation($"{ErrorFactory.Represent(this)} is not indexable", Bounds, Context);
 	
 }
 
@@ -329,6 +333,22 @@ public class List(List<IValue> value, Bounds bounds, Context context)
 
 	public override string ToString() => $"[{string.Join(", ", Value)}]";
 
+	public override IValue Index(IValue index)
+	{
+		switch (index) {
+			case Number number:
+				if (!int.TryParse(number.Value.ToString(), out int indexNumber))
+					return ErrorFactory.InvalidOperation("Number must be an integer", new(Bounds.Start, index.Bounds.End), Context);
+
+				if (indexNumber >= Value.Count || indexNumber < 0)
+					return ErrorFactory.InvalidOperation($"Index is out of range ({indexNumber})", new(Bounds.Start, index.Bounds.End), Context);
+				
+				return Value[indexNumber];
+		}
+
+		return ErrorFactory.UnsupportedIndex(this, index);
+	}
+
 }
 
 public class Null(Bounds bounds, Context context) : IValue {
@@ -361,6 +381,8 @@ public class Error(string message, Bounds bounds, Context context) : IValue {
 	
 	public Context Context { get; set; } = context;
 	public Bounds Bounds { get; } = bounds;
+
+	public override string ToString() => Value;
 
 	public Error Clone() => new(Value, Bounds, Context);
 	IValue IValue.Clone() => Clone();

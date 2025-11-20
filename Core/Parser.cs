@@ -223,7 +223,7 @@ public class Parser(Lexer lexer) {
 		if (Attempt<VariableNode>(Variable, out var variable))
 			return new VariableAccessNode(variable);
 
-		if (Attempt<EnumerationNode>(ListExpression, out var list)) return list;
+		if (Attempt<ListNode>(ListExpression, out var list)) return list;
 		Advance();
 		
 		if (token.Type is Token.EType.Number or Token.EType.Text)

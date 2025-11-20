@@ -129,13 +129,25 @@ public static class Interpreter {
 
 		return new List(elements, node.Bounds, context);
 	}
+	
+	private static IValue VisitArgumentsNode(ArgumentsNode node, Context context) => Visit(node.EnumerationNode, context);
 
 	private static IValue VisitCallNode(CallNode node, Context context)
 	{
 		var baseValue = Visit(node.BaseNode, context);
-		var arguments = (List)Visit(node.ArgumentsNode.EnumerationNode, context);
+		var arguments = (List)Visit(node.ArgumentsNode, context);
 		
 		return baseValue.Call(arguments);
+	}
+
+	private static IValue VisitIndexNode(IndexNode node, Context context) => Visit(node.Node, context); 
+	
+	private static IValue VisitIndexingNode(IndexingNode node, Context context)
+	{
+		var baseValue = Visit(node.BaseNode, context);
+		var indexValue = Visit(node.IndexNode, context);
+
+		return baseValue.Index(indexValue);
 	}
 
 	#endregion
