@@ -29,7 +29,7 @@ public interface IValue : IBounds {
 	#endregion
 	
 	IValue Execute(List arguments) => ErrorFactory.InvalidOperation($"{ErrorFactory.Represent(this)} is not executable", Bounds, Context);
-
+	
 }
 
 public abstract class GenericValue<TSelf, TValue>(TValue value, Bounds bounds, Context context) : IValue where TSelf : IValue{
@@ -49,7 +49,9 @@ public abstract class GenericValue<TSelf, TValue>(TValue value, Bounds bounds, C
 
 	public TSelf Clone() => (TSelf)Activator.CreateInstance(GetType(), Value, Bounds, Context)!;
 	IValue IValue.Clone() => Clone();
-	
+
+	public override string ToString() => Value?.ToString() ?? "Null";
+
 	#region Operators
 	
 	public virtual IValue AddedTo(IValue value) => ErrorFactory.UnsupportedOperator("+", this, value);
@@ -322,7 +324,12 @@ public class Text(string value, Bounds bounds, Context context) : GenericValue<T
 }
 
 public class List(List<IValue> value, Bounds bounds, Context context)
-	: GenericValue<List, List<IValue>>(value, bounds, context);
+	: GenericValue<List, List<IValue>>(value, bounds, context)
+{
+
+	public override string ToString() => $"[{string.Join(", ", Value)}]";
+
+}
 
 public class Null(Bounds bounds, Context context) : IValue {
 	
@@ -333,6 +340,8 @@ public class Null(Bounds bounds, Context context) : IValue {
 
 	public Context Context { get; set; } = context;
 	public Bounds Bounds { get; } = bounds;
+
+	public override string ToString() => "Null";
 
 	public Null Clone() => new(Bounds, Context);
 	IValue IValue.Clone() => Clone();
