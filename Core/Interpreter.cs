@@ -120,16 +120,17 @@ public static class Interpreter {
 		return value;
 	}
 
-	private static IValue VisitListNode(ListNode node, Context context)
+	private static IValue VisitEnumerationNode(EnumerationNode node, Context context)
 	{
 		List<IValue> elements = [];
 		
-		foreach (var elementNode in node.EnumerationNode.Elements) 
+		foreach (var elementNode in node.Elements) 
 			elements.Add(Visit(elementNode, context));
 
 		return new List(elements, node.Bounds, context);
 	}
-	
+
+	private static IValue VisitListNode(ListNode node, Context context) => Visit(node.EnumerationNode, context);
 	private static IValue VisitArgumentsNode(ArgumentsNode node, Context context) => Visit(node.EnumerationNode, context);
 
 	private static IValue VisitCallNode(CallNode node, Context context)
