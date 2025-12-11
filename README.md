@@ -104,7 +104,7 @@ and self-debugging software.
 
 ### Note on macOS
 
-I don't have a Mac to sign or test SYNAPSE on. macOS might block unsigned applications or terminate processes automatically. If this happens, please follow the instructions below:
+I don't have a Mac to sign or test SYNAPSE on. macOS might block unsigned applications or terminate processes automatically. If this happens, please follow the instructions below to build SYNAPSE from source:
 
 1. Make sure the [.NET SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0) is installed
 2. Clone the repository
