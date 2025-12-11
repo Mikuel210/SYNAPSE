@@ -102,6 +102,14 @@ and self-debugging software.
 2. Download and unzip the release for your OS
 3. Follow the instructions on README.md on the build directory
 
+### Note on macOS
+
+I don't have a Mac to sign or test SYNAPSE on. macOS might block unsigned applications or terminate processes automatically. If this happens, please follow the instructions below:
+
+1. Make sure the [.NET SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0) is installed
+2. Clone the repository
+3. On the `CLI` directory, run `dotnet run`
+
 ---
 
 Made with ❤️ for Moonshot thanks to Hack Club
